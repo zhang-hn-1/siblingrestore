@@ -105,6 +105,54 @@ def verifier_sibling_consensus(
     return loss
 
 
+def multi_scale_sibling_consensus(
+    restored_stage_features: list[torch.Tensor],
+    restored_embeddings: torch.Tensor,
+    class_ids: torch.Tensor,
+    siblings: int,
+    pull_weights: tuple[float, float, float] = (0.4, 0.35, 0.25),
+    push_margin: float = 0.3,
+    hard_negative_weight: float = 2.0,
+    eps: float = 1e-6,
+) -> torch.Tensor:
+    """Multi-Scale Sibling Verifier Consensus (MSC).
+
+    Pull: same-source restored siblings share per-channel normalized feature
+    maps across the first three verifier stages (local texture + structure +
+    identity), enforcing cross-degradation identity consensus without a fixed
+    clean anchor.
+
+    Push: restored embeddings of different sources are separated; same-class
+    different-source pairs are weighted harder so the model learns source
+    identity rather than class semantics.
+
+    restored_stage_features: [B*K, C, H, W] per stage from verifier.forward_stages
+    restored_embeddings:    [B*K, D] from verifier.embed
+    class_ids:              [B] subcategory ids
+    """
+    batch = int(class_ids.shape[0])
+    pull_terms: list[torch.Tensor] = []
+    for features, weight in zip(restored_stage_features, pull_weights):
+        features = features.float().reshape(batch, siblings, *features.shape[1:])
+        norm = torch.sqrt(features.pow(2).sum(dim=(-2, -1), keepdim=True) + eps)
+        features_bar = features / norm
+        for batch_index in range(batch):
+            for first in range(siblings):
+                for second in range(first + 1, siblings):
+                    pull_terms.append(F.l1_loss(features_bar[batch_index, first], features_bar[batch_index, second]))
+    pull = torch.stack(pull_terms).mean() if pull_terms else restored_embeddings.sum() * 0.0
+    embeddings = F.normalize(restored_embeddings.float().reshape(batch, siblings, -1), dim=-1)
+    pushes: list[torch.Tensor] = []
+    for first_batch in range(batch):
+        for second_batch in range(first_batch + 1, batch):
+            cosine = (embeddings[first_batch] * embeddings[second_batch]).sum(dim=-1)
+            hinge = torch.clamp(cosine - push_margin, min=0.0)
+            same_class = bool(class_ids[first_batch] == class_ids[second_batch])
+            pushes.append(hinge.mean() * (hard_negative_weight if same_class else 1.0))
+    push = torch.stack(pushes).mean() if pushes else embeddings.sum() * 0.0
+    return pull + push
+
+
 def multi_scale_anchor_loss(
     restored_features: list[torch.Tensor],
     clean_features: list[torch.Tensor],

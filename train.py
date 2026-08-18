@@ -21,6 +21,7 @@ from siblingrestore.losses import (
     gentle_identity_loss,
     gradient_loss,
     multi_scale_anchor_loss,
+    multi_scale_sibling_consensus,
     optional_loss,
     project_conflicting_gradient,
     sibling_output_consistency,
@@ -296,6 +297,27 @@ def train_step(
                     restored_features,
                     clean_features,
                     weights=tuple(float(value) for value in anchor_config.get("weights", [0.4, 0.35, 0.25])),
+                )
+            elif anchor_config is not None and anchor_config.get("type") == "msc":
+                # Multi-Scale Sibling Verifier Consensus: same-source siblings
+                # share per-channel normalized stage features (pull) and
+                # different sources are separated in embedding space with
+                # same-class hard negatives weighted harder (push). No clean
+                # anchor, so it does not fight pixel reconstruction. FP32
+                # re-forward avoids AMP gradient truncation through the small
+                # verifier feature gradients.
+                output_fp32 = model(flat_degraded.float())
+                restored_fp32 = output_fp32["restored"] if isinstance(output_fp32, dict) else output_fp32
+                stage_features = verifier.forward_stages(restored_fp32)
+                embeddings = verifier.embed(restored_fp32)
+                anchor = multi_scale_sibling_consensus(
+                    stage_features,
+                    embeddings,
+                    class_ids,
+                    siblings,
+                    pull_weights=tuple(float(value) for value in anchor_config.get("pull_weights", [0.4, 0.35, 0.25])),
+                    push_margin=float(anchor_config.get("push_margin", 0.3)),
+                    hard_negative_weight=float(anchor_config.get("hard_negative_weight", 2.0)),
                 )
             elif anchor_config is not None and anchor_config.get("type") == "sibling_consensus":
                 # Same-source sibling pull + cross-source push in the frozen
