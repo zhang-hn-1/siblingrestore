@@ -1,0 +1,33 @@
+{
+  "data_root": "data/plamd_vari_grip_500",
+  "mode": "independent",
+  "optimizer": "adamw",
+  "scheduler": "cosine",
+  "device": "cuda",
+  "crop_size": 128,
+  "batch_size": 4,
+  "num_workers": 8,
+  "epochs": 700,
+  "max_steps": 5000,
+  "validation_interval_steps": 2500,
+  "validation_split": "val",
+  "gradient_diagnostic_interval_steps": 200,
+  "eval_tile_size": 128,
+  "eval_tile_overlap": 32,
+  "learning_rate": 0.0002,
+  "min_learning_rate": 1e-06,
+  "weight_decay": 0.0001,
+  "gradient_clip": 1.0,
+  "amp": true,
+  "loss_weights": {
+    "gradient": 0.05,
+    "source": 0.0,
+    "output": 0.0,
+    "degradation": 0.0,
+    "temperature": 0.1,
+    "same_class_negative_weight": 2.0
+  },
+  "model_family": "grl",
+  "seed": 13,
+  "output_dir": "runs/baselines_500/grl/seed13"
+}

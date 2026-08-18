@@ -1,0 +1,16 @@
+{
+  "data_root": "data/plamd_vari_grip_pilot",
+  "output_dir": "runs/v05_smoke/verifier",
+  "role": "smoke",
+  "device": "cpu",
+  "seed": 13,
+  "selection_seed": 13013,
+  "selection_fraction": 0.2,
+  "selection_steps": 2,
+  "final_steps": 2,
+  "crop_size": 64,
+  "batch_size": 4,
+  "num_workers": 0,
+  "learning_rate": 0.0002,
+  "model": {"source_count": 71, "embedding_dim": 128}
+}

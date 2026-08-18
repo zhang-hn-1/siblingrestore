@@ -1,0 +1,37 @@
+{
+  "data_root": "data/plamd_vari_grip_pilot",
+  "output_dir": "runs/smoke",
+  "mode": "sibling",
+  "seed": 13,
+  "device": "auto",
+  "crop_size": 64,
+  "sibling_count": 2,
+  "batch_size": 2,
+  "num_workers": 0,
+  "epochs": 1,
+  "max_steps": 1,
+  "validation_interval_steps": 1,
+  "eval_tile_size": 256,
+  "eval_tile_overlap": 32,
+  "smoke_train_items": 4,
+  "smoke_train_sources": 4,
+  "smoke_eval_items": 2,
+  "learning_rate": 0.0002,
+  "weight_decay": 0.0001,
+  "gradient_clip": 1.0,
+  "amp": false,
+  "model": {
+    "dim": 8,
+    "blocks_per_level": [1, 1, 1, 1, 1],
+    "heads": [1, 2, 4],
+    "projection_dim": 32
+  },
+  "loss_weights": {
+    "gradient": 0.05,
+    "source": 0.1,
+    "output": 0.05,
+    "degradation": 0.05,
+    "temperature": 0.1,
+    "same_class_negative_weight": 2.0
+  }
+}

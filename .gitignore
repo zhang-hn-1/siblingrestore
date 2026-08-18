@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+.venv/
+*.tar.gz
+runs/
+logs/
+results/
+data/
+MANIFEST.sha256
+*.log

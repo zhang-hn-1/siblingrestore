@@ -1,0 +1,35 @@
+{
+  "data_root": "data/plamd_vari_grip_pilot",
+  "output_dir": "runs/pilot_independent",
+  "mode": "independent",
+  "seed": 13,
+  "device": "cuda",
+  "crop_size": 256,
+  "sibling_count": 2,
+  "batch_size": 8,
+  "num_workers": 8,
+  "epochs": 700,
+  "max_steps": 5000,
+  "validation_interval_steps": 500,
+  "eval_tile_size": 512,
+  "eval_tile_overlap": 32,
+  "learning_rate": 0.0002,
+  "min_learning_rate": 0.000001,
+  "weight_decay": 0.0001,
+  "gradient_clip": 1.0,
+  "amp": true,
+  "model": {
+    "dim": 32,
+    "blocks_per_level": [2, 2, 3, 2, 2],
+    "heads": [1, 2, 4],
+    "projection_dim": 128
+  },
+  "loss_weights": {
+    "gradient": 0.05,
+    "source": 0.1,
+    "output": 0.05,
+    "degradation": 0.05,
+    "temperature": 0.1,
+    "same_class_negative_weight": 2.0
+  }
+}

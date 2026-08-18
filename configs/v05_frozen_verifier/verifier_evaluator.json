@@ -1,0 +1,19 @@
+{
+  "data_root": "data/plamd_vari_grip_pilot",
+  "device": "cuda",
+  "selection_fraction": 0.2,
+  "selection_steps": 800,
+  "final_steps": 1200,
+  "crop_size": 256,
+  "batch_size": 32,
+  "num_workers": 8,
+  "learning_rate": 0.0002,
+  "model": {
+    "source_count": 71,
+    "embedding_dim": 128
+  },
+  "role": "evaluator",
+  "seed": 202,
+  "selection_seed": 202022,
+  "output_dir": "runs/v05_frozen_verifier/evaluator"
+}

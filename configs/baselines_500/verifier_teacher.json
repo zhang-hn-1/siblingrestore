@@ -1,0 +1,19 @@
+{
+  "data_root": "data/plamd_vari_grip_500",
+  "output_dir": "runs/baselines_500/verifier_teacher",
+  "role": "teacher",
+  "device": "cuda",
+  "seed": 101,
+  "selection_seed": 101011,
+  "selection_fraction": 0.2,
+  "selection_steps": 800,
+  "final_steps": 1500,
+  "crop_size": 256,
+  "batch_size": 64,
+  "num_workers": 8,
+  "learning_rate": 0.0002,
+  "model": {
+    "source_count": 355,
+    "embedding_dim": 128
+  }
+}
