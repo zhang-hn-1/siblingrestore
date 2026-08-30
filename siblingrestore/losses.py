@@ -153,10 +153,75 @@ def multi_scale_sibling_consensus(
     return pull + push
 
 
+def reliability_guided_sibling_distillation(
+    embeddings: torch.Tensor,
+    class_ids: torch.Tensor,
+    siblings: int,
+    push_margin: float = 0.3,
+    hard_negative_weight: float = 2.0,
+    eps: float = 1e-6,
+) -> torch.Tensor:
+    """Reliability-Guided Sibling Distillation (RSD).
+
+    For each source, verifier embeddings of its K restored siblings form a
+    dynamic teacher: a reliability-weighted prototype p_s = sum_k r_k e_k /
+    sum r_k (stop-grad). Reliability r_k is sibling centrality -- how
+    consistent a view is with its same-source siblings -- computed on
+    detached embeddings so gradients never flow back into reliable views.
+    Unreliable views (weight w_k = 1 - r_k) are distilled toward the
+    prototype; reliable views stay untouched (asymmetric teacher-student).
+    Prototypes of different sources are separated with same-class hard
+    negatives weighted harder.
+
+    embeddings: [B*K, D] frozen-verifier embeddings of restored siblings.
+    class_ids:  [B] subcategory ids.
+    """
+    batch = int(class_ids.shape[0])
+    vectors = F.normalize(embeddings.float(), dim=-1)
+    grouped = vectors.reshape(batch, siblings, -1)
+    with torch.no_grad():
+        # sibling centrality: exp(-mean pairwise distance to same-source views)
+        reliabilities = []
+        for batch_index in range(batch):
+            view = grouped[batch_index]
+            pair_dists = []
+            for first in range(siblings):
+                for second in range(first + 1, siblings):
+                    pair_dists.append(1.0 - (view[first] * view[second]).sum(dim=-1))
+            mean_dist = torch.stack(pair_dists).mean()
+            reliabilities.append(torch.exp(-mean_dist).expand(siblings))
+        reliability = torch.stack(reliabilities).reshape(batch, siblings)  # [B, K], detached
+        weights = 1.0 - reliability  # student weights, detached
+        prototypes = []
+        for batch_index in range(batch):
+            numerator = (reliability[batch_index, :, None] * grouped[batch_index]).sum(dim=0)
+            prototypes.append(numerator / (reliability[batch_index].sum() + eps))
+        prototype = torch.stack(prototypes)  # [B, D], detached
+    distil = []
+    for batch_index in range(batch):
+        for sibling_index in range(siblings):
+            distil.append(
+                weights[batch_index, sibling_index]
+                * (1.0 - (grouped[batch_index, sibling_index] * prototype[batch_index]).sum(dim=-1))
+            )
+    loss = torch.stack(distil).mean()
+    pushes = []
+    for first_batch in range(batch):
+        for second_batch in range(first_batch + 1, batch):
+            cosine = (prototype[first_batch] * prototype[second_batch]).sum(dim=-1)
+            hinge = torch.clamp(cosine - push_margin, min=0.0)
+            same_class = bool(class_ids[first_batch] == class_ids[second_batch])
+            pushes.append(hinge * (hard_negative_weight if same_class else 1.0))
+    if pushes:
+        loss = loss + torch.stack(pushes).mean()
+    return loss
+
+
 def multi_scale_anchor_loss(
     restored_features: list[torch.Tensor],
     clean_features: list[torch.Tensor],
     weights: tuple[float, float, float] = (0.4, 0.35, 0.25),
+
     eps: float = 1e-6,
 ) -> torch.Tensor:
     """Multi-scale verifier anchor: per-channel L2-normalized spatial feature

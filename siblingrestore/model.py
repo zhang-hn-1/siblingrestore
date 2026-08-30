@@ -104,7 +104,7 @@ class SiblingRestormer(nn.Module):
         blocks_per_level: tuple[int, int, int, int, int] = (2, 2, 3, 2, 2),
         heads: tuple[int, int, int] = (1, 2, 4),
         projection_dim: int = 128,
-        degradation_count: int = 6,
+        degradation_count: int = 7,
         degradation_conditioned: bool = False,
         identity_mode: str | None = None,
         identity_source_count: int = 71,

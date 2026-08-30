@@ -12,10 +12,24 @@ from PIL import Image
 from torch.utils.data import Dataset
 
 
-DEGRADATIONS = ("blur", "haze", "inpainting", "lowlight", "rain", "snow")
+DEGRADATIONS = ("blur", "haze", "inpainting", "lowlight", "noise", "rain", "snow")
 DEGRADATION_TO_ID = {name: index for index, name in enumerate(DEGRADATIONS)}
 CLASSES = ("good", "rust", "bird-nest")
 CLASS_TO_ID = {name: index for index, name in enumerate(CLASSES)}
+
+
+def _resize_lanczos(image: torch.Tensor, target_h: int, target_w: int) -> torch.Tensor:
+    """PIL Lanczos resize（noise 对协议：clean resize 到 noise 原生尺寸）。"""
+    array = image.permute(1, 2, 0).mul(255.0).round().clamp_(0, 255).byte().numpy()
+    pil = Image.fromarray(array).resize((target_w, target_h), Image.LANCZOS)
+    return torch.from_numpy(np.asarray(pil, dtype=np.uint8).copy()).permute(2, 0, 1).float().div_(255.0)
+
+
+def align_pair_shape(degraded: torch.Tensor, clean: torch.Tensor):
+    """尺寸不一致时把 clean 对齐到 degraded（noise Method B 协议）。"""
+    if clean.shape == degraded.shape:
+        return degraded, clean
+    return degraded, _resize_lanczos(clean, int(degraded.shape[-2]), int(degraded.shape[-1]))
 
 
 def _read_rgb(path: Path) -> torch.Tensor:
@@ -37,11 +51,14 @@ def _reflect_pad(image: torch.Tensor, target_h: int, target_w: int) -> torch.Ten
 def paired_train_crop(
     images: list[torch.Tensor], crop_size: int, rng: random.Random
 ) -> list[torch.Tensor]:
-    heights = {int(image.shape[-2]) for image in images}
-    widths = {int(image.shape[-1]) for image in images}
-    if len(heights) != 1 or len(widths) != 1:
-        raise ValueError(f"unaligned sibling shapes: heights={heights}, widths={widths}")
-    height, width = heights.pop(), widths.pop()
+    # noise（Method B）与 clean 原生尺寸可不同：统一 Lanczos 对齐到第一张退化图尺寸
+    reference_h, reference_w = int(images[0].shape[-2]), int(images[0].shape[-1])
+    images = [
+        image if (int(image.shape[-2]), int(image.shape[-1])) == (reference_h, reference_w)
+        else _resize_lanczos(image, reference_h, reference_w)
+        for image in images
+    ]
+    height, width = reference_h, reference_w
     target_h, target_w = max(height, crop_size), max(width, crop_size)
     images = [_reflect_pad(image, target_h, target_w) for image in images]
     top = rng.randint(0, target_h - crop_size)
@@ -53,7 +70,7 @@ def paired_eval_pad(
     degraded: torch.Tensor, clean: torch.Tensor, multiple: int = 8
 ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
     if degraded.shape != clean.shape:
-        raise ValueError(f"pair shape mismatch: {degraded.shape} vs {clean.shape}")
+        degraded, clean = align_pair_shape(degraded, clean)
     _, height, width = degraded.shape
     target_h = ((height + multiple - 1) // multiple) * multiple
     target_w = ((width + multiple - 1) // multiple) * multiple

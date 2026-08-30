@@ -539,6 +539,31 @@ def _grl():
     return load_grl(upscale=1, img_range=1.0, upsampler="")
 
 
+def _airnet():
+    from siblingrestore.table1_adapters import AirNetAdapter
+    return AirNetAdapter()
+
+
+def _transweather():
+    from siblingrestore.table1_adapters import TransWeatherAdapter
+    return TransWeatherAdapter()
+
+
+def _dfpir():
+    from siblingrestore.table1_adapters import _load_dfpir
+    return _load_dfpir()
+
+
+def _clearair():
+    from siblingrestore.table1_adapters import _load_clearair
+    return _load_clearair()
+
+
+def _r2r():
+    from siblingrestore.table1_adapters import _load_r2r
+    return _load_r2r()
+
+
 MODELS = {
     "restormer": _official("restormer_official", "restormer_official.py", "Restormer"),
     "swinir": _official("swinir_official", "swinir_official.py", "SwinIR", upscale=1, img_size=256, window_size=8, img_range=1.0, depths=[6, 6, 6, 6], embed_dim=96, num_heads=[6, 6, 6, 6], mlp_ratio=4, upsampler="", resi_connection="1conv"),
@@ -548,4 +573,9 @@ MODELS = {
     "uformer": _official("uformer_official", "uformer_official.py", "Uformer"),
     "dehazeformer": _official("dehazeformer_official", "dehazeformer_official.py", "dehazeformer_l"),
     "grl": _grl,
+    "airnet": _airnet,
+    "transweather": _transweather,
+    "dfpir": _dfpir,
+    "clearair": _clearair,
+    "r2r": _r2r,
 }

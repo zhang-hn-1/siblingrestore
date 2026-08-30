@@ -22,6 +22,7 @@ from siblingrestore.losses import (
     gradient_loss,
     multi_scale_anchor_loss,
     multi_scale_sibling_consensus,
+    reliability_guided_sibling_distillation,
     optional_loss,
     project_conflicting_gradient,
     sibling_output_consistency,
@@ -316,6 +317,22 @@ def train_step(
                     class_ids,
                     siblings,
                     pull_weights=tuple(float(value) for value in anchor_config.get("pull_weights", [0.4, 0.35, 0.25])),
+                    push_margin=float(anchor_config.get("push_margin", 0.3)),
+                    hard_negative_weight=float(anchor_config.get("hard_negative_weight", 2.0)),
+                )
+            elif anchor_config is not None and anchor_config.get("type") == "rsd":
+                # Reliability-Guided Sibling Distillation: reliable siblings
+                # form a dynamic detached prototype teacher; unreliable
+                # siblings are distilled toward it (asymmetric), and
+                # prototype-level hard negatives separate same-class sources.
+                # FP32 re-forward avoids AMP gradient truncation.
+                output_fp32 = model(flat_degraded.float())
+                restored_fp32 = output_fp32["restored"] if isinstance(output_fp32, dict) else output_fp32
+                restored_embedding = verifier.embed(restored_fp32)
+                anchor = reliability_guided_sibling_distillation(
+                    restored_embedding,
+                    class_ids,
+                    siblings,
                     push_margin=float(anchor_config.get("push_margin", 0.3)),
                     hard_negative_weight=float(anchor_config.get("hard_negative_weight", 2.0)),
                 )

@@ -1,0 +1,14 @@
+{
+  "name": "c005_official_group2",
+  "data_root": "data/plamd_sfr_v1",
+  "template_config_dir": "configs/baselines_500",
+  "verifier_template": "verifier_evaluator.json",
+  "shared_verifier": "runs/campaigns/c001_sfr_v1/verifier_evaluator/best.pt",
+  "verifier_source_count": 895,
+  "models": ["restormer", "promptir"],
+  "seeds": [13],
+  "splits": ["val", "test"],
+  "gpus": [1],
+  "lpips": true,
+  "overrides": {"max_steps": 12000, "crop_size": 256, "num_workers": 4}
+}

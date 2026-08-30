@@ -1,0 +1,20 @@
+{
+  "name": "c003_table1_group2",
+  "data_root": "data/plamd_sfr_v1",
+  "template_config_dir": "configs/baselines_500",
+  "verifier_template": "verifier_evaluator.json",
+  "verifier_source_count": 895,
+  "models": [
+    "prenet",
+    "ours_dim48",
+    "ours_two_stage_v2",
+    "ours_dim32_msc",
+    "ours_dim48_two_stage_anchor",
+    "ours_dim64"
+  ],
+  "seeds": [13],
+  "splits": ["val", "test"],
+  "gpus": [0, 1, 2, 3],
+  "lpips": true,
+  "overrides": {"max_steps": 12000, "crop_size": 256}
+}

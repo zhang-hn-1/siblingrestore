@@ -1,0 +1,17 @@
+{
+  "name": "c001_sfr_v1",
+  "data_root": "data/plamd_sfr_v1",
+  "template_config_dir": "configs/baselines_500",
+  "verifier_template": "verifier_evaluator.json",
+  "verifier_source_count": 895,
+  "models": [
+    "restormer", "promptir", "prenet", "grl",
+    "ours_dim48_anchor", "ours_dim48", "ours_two_stage_v2",
+    "ours_dim32_msc", "ours_dim48_two_stage_anchor", "ours_dim64", "ours_dim64_anchor"
+  ],
+  "seeds": [13],
+  "splits": ["val", "test"],
+  "gpus": [0, 1, 3],
+  "lpips": true,
+  "overrides": {"max_steps": 12000, "crop_size": 256, "num_workers": 4}
+}

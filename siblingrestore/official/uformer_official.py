@@ -1267,6 +1267,16 @@ class Uformer(nn.Module):
         return f"embed_dim={self.embed_dim}, token_projection={self.token_projection}, token_mlp={self.mlp},win_size={self.win_size}"
 
     def forward(self, x, mask=None):
+        # Uformer window attention requires H and W to be multiples of
+        # win_size * 2**4 (win_size=8, 4 encoder downsamples) = 128. Pad
+        # reflectively to the next multiple, then crop the residual back so
+        # arbitrary validation tile sizes work (Restormer/SwinIR align to 8,
+        # which is not sufficient for Uformer's window partitioning).
+        _, _, h, w = x.shape
+        pad_h = (128 - h % 128) % 128
+        pad_w = (128 - w % 128) % 128
+        if pad_h or pad_w:
+            x = torch.nn.functional.pad(x, (0, pad_w, 0, pad_h), mode="reflect")
         # Input Projection
         y = self.input_proj(x)
         y = self.pos_drop(y)
@@ -1302,7 +1312,10 @@ class Uformer(nn.Module):
 
         # Output Projection
         y = self.output_proj(deconv3)
-        return x + y if self.dd_in ==3 else y
+        out = x + y if self.dd_in == 3 else y
+        if pad_h or pad_w:
+            out = out[..., :h, :w]
+        return out
 
     def flops(self):
         flops = 0

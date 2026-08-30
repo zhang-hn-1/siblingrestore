@@ -1,0 +1,19 @@
+{
+  "data_root": "data/plamd_sfr_v1",
+  "output_dir": "runs/campaigns/c005_official_group3/verifier_evaluator",
+  "role": "evaluator",
+  "device": "cuda",
+  "seed": 202,
+  "selection_seed": 202022,
+  "selection_fraction": 0.2,
+  "selection_steps": 800,
+  "final_steps": 1500,
+  "crop_size": 256,
+  "batch_size": 64,
+  "num_workers": 8,
+  "learning_rate": 0.0002,
+  "model": {
+    "source_count": 895,
+    "embedding_dim": 128
+  }
+}
