@@ -1,6 +1,6 @@
 {
   "data_root": "data/plamd_sfr_v1",
-  "output_dir": "runs/campaigns/c007_psnr_modules_12k/verifier_evaluator",
+  "output_dir": "runs/psnr_modules_12k/verifier_evaluator",
   "role": "evaluator",
   "device": "cuda",
   "seed": 202,
