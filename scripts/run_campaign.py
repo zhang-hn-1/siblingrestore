@@ -63,8 +63,8 @@ def cmd_prepare(spec_path: Path) -> None:
     name = spec["name"]
     data_root = spec["data_root"]
     config_dir = Path("configs") / "campaigns" / name
-    run_root = Path("runs") / "campaigns" / name
-    result_root = Path("results") / "campaigns" / name
+    run_root = Path(spec.get("run_root", Path("runs") / "campaigns" / name))
+    result_root = Path(spec.get("result_root", Path("results") / "campaigns" / name))
     log_dir = result_root / "logs"
     manifest_path = result_root / "jobs.jsonl"
     config_dir.mkdir(parents=True, exist_ok=True)
@@ -229,7 +229,7 @@ def worker(gpu: int, spec: dict, manifest_path: Path, log_dir: Path) -> None:
 def cmd_run(spec_path: Path) -> None:
     spec = load_json(spec_path)
     name = spec["name"]
-    result_root = Path("results") / "campaigns" / name
+    result_root = Path(spec.get("result_root", Path("results") / "campaigns" / name))
     manifest_path = result_root / "jobs.jsonl"
     log_dir = result_root / "logs"
     assert manifest_path.exists(), "先运行 prepare"
