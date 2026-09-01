@@ -289,7 +289,8 @@ class _HaarTransform(nn.Module):
         pad_h = height % 2
         pad_w = width % 2
         if pad_h or pad_w:
-            x = F.pad(x, (0, pad_w, 0, pad_h), mode='reflect')
+            mode = "reflect" if height > 1 and width > 1 and pad_h < height and pad_w < width else "replicate"
+            x = F.pad(x, (0, pad_w, 0, pad_h), mode=mode)
         filters = self.filters.to(device=x.device, dtype=x.dtype).repeat(channels, 1, 1, 1)
         out = F.conv2d(
             x.reshape(batch, channels, x.shape[2], x.shape[3]),

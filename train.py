@@ -740,7 +740,7 @@ def main() -> None:
             break
 
     summary = {
-        "status": "smoke_only" if max_steps and max_steps <= 5 else "exploratory",
+        "status": "smoke_only" if max_steps and max_steps <= 5 else "formal_12k" if max_steps == 12000 else "exploratory",
         "mode": config["mode"],
         "device": str(device),
         "steps": step,

@@ -175,7 +175,18 @@ class SiblingRestormer(nn.Module):
         # Construct refinement after all original backbone/heads are initialized.
         self.refine_module = build_refinement(self.refinement_type, dim, heads, dim * 4)
 
+    @staticmethod
+    def _pad_input(image: torch.Tensor, multiple: int = 4) -> tuple[torch.Tensor, tuple[int, int]]:
+        height, width = image.shape[-2:]
+        pad_h = (multiple - height % multiple) % multiple
+        pad_w = (multiple - width % multiple) % multiple
+        if pad_h == 0 and pad_w == 0:
+            return image, (height, width)
+        mode = "reflect" if height > 1 and width > 1 and pad_h < height and pad_w < width else "replicate"
+        return F.pad(image, (0, pad_w, 0, pad_h), mode=mode), (height, width)
+
     def encode(self, image: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        image, _ = self._pad_input(image)
         level1 = self.enc1(self.patch(image))
         level2 = self.enc2(self.down1(level1))
         latent = self.latent(self.down2(level2))
@@ -192,6 +203,8 @@ class SiblingRestormer(nn.Module):
         return self.project_latent(latent)[0]
 
     def forward(self, image: torch.Tensor) -> dict[str, torch.Tensor]:
+        original_height, original_width = image.shape[-2:]
+        image, _ = self._pad_input(image)
         level1, level2, latent = self.encode(image)
         content, degradation_logits = self.project_latent(latent)
         if self.degradation_conditioned:
@@ -228,6 +241,7 @@ class SiblingRestormer(nn.Module):
             restored = torch.clamp(image + base_residual + correction, 0.0, 1.0)
         else:
             restored = torch.clamp(image + base_residual, 0.0, 1.0)
+        restored = restored[..., :original_height, :original_width]
 
         identity_logits = None
         identity_feature = None
