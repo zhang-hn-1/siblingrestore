@@ -290,7 +290,7 @@ class _HaarTransform(nn.Module):
         pad_w = width % 2
         if pad_h or pad_w:
             x = F.pad(x, (0, pad_w, 0, pad_h), mode='reflect')
-        filters = self.filters.repeat(channels, 1, 1, 1)
+        filters = self.filters.to(device=x.device, dtype=x.dtype).repeat(channels, 1, 1, 1)
         out = F.conv2d(
             x.reshape(batch, channels, x.shape[2], x.shape[3]),
             filters,
@@ -307,7 +307,7 @@ class _HaarTransform(nn.Module):
         batch, channels, h, w = ll.shape
         # Group four subbands belonging to each channel for grouped synthesis.
         block = torch.stack([ll, lh, hl, hh], dim=2).reshape(batch, channels * 4, h, w)
-        filters = self.filters.repeat(channels, 1, 1, 1)
+        filters = self.filters.to(device=block.device, dtype=block.dtype).repeat(channels, 1, 1, 1)
         recon = F.conv_transpose2d(
             block,
             filters,

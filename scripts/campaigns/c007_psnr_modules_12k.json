@@ -1,0 +1,26 @@
+{
+  "name": "c007_psnr_modules_12k",
+  "data_root": "data/plamd_sfr_v1",
+  "template_config_dir": "configs/psnr_modules_12k",
+  "verifier_template": "verifier_evaluator.json",
+  "verifier_source_count": 895,
+  "models": [
+    "M0_deg_fixed_baseline",
+    "M1_transformer_refine",
+    "M2_naf_refine",
+    "M3_alcrb",
+    "M4_rerh",
+    "M5_lmrb",
+    "M6_hfrb"
+  ],
+  "seeds": [13],
+  "splits": ["val"],
+  "gpus": [0, 1, 3],
+  "shared_verifier": "runs/baselines_500/verifier_teacher/best.pt",
+  "lpips": true,
+  "overrides": {
+    "max_steps": 12000,
+    "validation_interval_steps": 500,
+    "validation_split": "val"
+  }
+}
