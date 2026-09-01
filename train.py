@@ -543,6 +543,61 @@ def main() -> None:
     diagnostic_interval = int(config.get("gradient_diagnostic_interval_steps", 200))
     latent_parameters = _latent_parameters(model)
 
+    def run_validation(epoch: int) -> None:
+        nonlocal best_psnr, best_step, last_validation_psnr, last_step, next_validation
+        validation = evaluate(
+            model,
+            Path(config["data_root"]),
+            device,
+            int(config["seed"]),
+            int(config["num_workers"]),
+            split=str(config.get("validation_split", "val")),
+            max_items=int(config.get("smoke_eval_items", 0)),
+            tile_size=int(config.get("eval_tile_size", 512)),
+            tile_overlap=int(config.get("eval_tile_overlap", 32)),
+        )
+        last_validation_psnr = float(validation["aggregate"]["psnr"])
+        last_step = step
+        validation_record = {"epoch": epoch, "step": step, **validation}
+        with (output_dir / "validation_history.jsonl").open("a", encoding="utf-8") as handle:
+            handle.write(json.dumps(validation_record, ensure_ascii=False) + "\n")
+        is_best = last_validation_psnr > best_psnr
+        if is_best:
+            best_psnr = last_validation_psnr
+            best_step = step
+        checkpoint = {
+            "model": model.state_dict(),
+            "optimizer": optimizer.state_dict(),
+            "scheduler": scheduler.state_dict(),
+            "scaler": scaler.state_dict(),
+            "epoch": epoch,
+            "step": step,
+            "config": config,
+            "validation": validation,
+            "best_psnr": best_psnr,
+            "best_step": best_step,
+            "last_validation_psnr": last_validation_psnr,
+            "last_step": last_step,
+            "next_validation": next_validation,
+            "rng_state": capture_rng_state(),
+        }
+        torch.save(checkpoint, output_dir / "last.pt")
+        if is_best:
+            torch.save(checkpoint, output_dir / "best.pt")
+        (output_dir / "last_validation.json").write_text(
+            json.dumps(validation_record, ensure_ascii=False, indent=2), encoding="utf-8"
+        )
+        if is_best:
+            (output_dir / "best_validation.json").write_text(
+                json.dumps(validation_record, ensure_ascii=False, indent=2), encoding="utf-8"
+            )
+        print(json.dumps({
+            "mode": config["mode"], "epoch": epoch, "step": step,
+            "val_psnr": last_validation_psnr, "val_ssim": validation["aggregate"]["ssim"],
+        }), flush=True)
+        while next_validation <= step:
+            next_validation += validation_interval
+
     for epoch in range(start_epoch, int(config["epochs"])):
         dataset.set_epoch(epoch)
         model.train()
@@ -672,70 +727,17 @@ def main() -> None:
             }
             with log_path.open("a", encoding="utf-8") as handle:
                 handle.write(json.dumps(record) + "\n")
+            if step >= next_validation or (max_steps and step >= max_steps):
+                model.eval()
+                run_validation(epoch)
+                model.train()
             if max_steps and step >= max_steps:
                 break
-        should_validate = (
-            step >= next_validation
-            or (max_steps and step >= max_steps)
-            or epoch == int(config["epochs"]) - 1
-        )
-        if should_validate:
-            validation = evaluate(
-                model,
-                Path(config["data_root"]),
-                device,
-                int(config["seed"]),
-                int(config["num_workers"]),
-                split=str(config.get("validation_split", "val")),
-                max_items=int(config.get("smoke_eval_items", 0)),
-                tile_size=int(config.get("eval_tile_size", 512)),
-                tile_overlap=int(config.get("eval_tile_overlap", 32)),
-            )
-            last_validation_psnr = float(validation["aggregate"]["psnr"])
-            last_step = step
-            validation_record = {"epoch": epoch, "step": step, **validation}
-            with (output_dir / "validation_history.jsonl").open("a", encoding="utf-8") as handle:
-                handle.write(json.dumps(validation_record, ensure_ascii=False) + "\n")
-            is_best = last_validation_psnr > best_psnr
-            if is_best:
-                best_psnr = last_validation_psnr
-                best_step = step
-            checkpoint = {
-                "model": model.state_dict(),
-                "optimizer": optimizer.state_dict(),
-                "scheduler": scheduler.state_dict(),
-                "scaler": scaler.state_dict(),
-                "epoch": epoch,
-                "step": step,
-                "config": config,
-                "validation": validation,
-                "best_psnr": best_psnr,
-                "best_step": best_step,
-                "last_validation_psnr": last_validation_psnr,
-                "last_step": last_step,
-                "next_validation": next_validation,
-                "rng_state": capture_rng_state(),
-            }
-            torch.save(checkpoint, output_dir / "last.pt")
-            if is_best:
-                torch.save(checkpoint, output_dir / "best.pt")
-            (output_dir / "last_validation.json").write_text(json.dumps(validation_record, ensure_ascii=False, indent=2), encoding="utf-8")
-            if is_best:
-                (output_dir / "best_validation.json").write_text(json.dumps(validation_record, ensure_ascii=False, indent=2), encoding="utf-8")
-            print(
-                json.dumps(
-                    {
-                        "mode": config["mode"],
-                        "epoch": epoch,
-                        "step": step,
-                        "val_psnr": last_validation_psnr,
-                        "val_ssim": validation["aggregate"]["ssim"],
-                    }
-                ),
-                flush=True,
-            )
-            while next_validation <= step:
-                next_validation += validation_interval
+        # Validate at the epoch boundary only if no step-aligned validation ran.
+        if step >= next_validation or (max_steps and step >= max_steps):
+            model.eval()
+            run_validation(epoch)
+            model.train()
         if max_steps and step >= max_steps:
             break
 
