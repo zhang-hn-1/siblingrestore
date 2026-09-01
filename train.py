@@ -131,6 +131,7 @@ def make_model(config: dict[str, object]) -> torch.nn.Module:
         degradation_conditioned=bool(model_config.get("degradation_conditioned", False)),
         identity_mode=model_config.get("identity_mode", None),
         identity_source_count=int(model_config.get("identity_source_count", 71)),
+        refinement_type=str(model_config.get("refinement_type", "none")),
     )
 
 

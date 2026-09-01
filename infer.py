@@ -43,6 +43,7 @@ def main() -> None:
         degradation_conditioned=bool(config.get("degradation_conditioned", False)),
         identity_mode=config.get("identity_mode", None),
         identity_source_count=int(config.get("identity_source_count", 71)),
+        refinement_type=str(config.get("refinement_type", "none")),
     )
     model.load_state_dict(checkpoint["model"])
     model.to(device).eval()

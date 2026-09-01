@@ -30,6 +30,10 @@ MODEL_CKPT = {
 def load_model(name: str) -> torch.nn.Module:
     if name in MODEL_CKPT:
         ck = torch.load(MODEL_CKPT[name], map_location="cpu", weights_only=False)
+        # Ensure config includes refinement_type for backward compat
+        model_config = ck["config"].get("model", ck["config"])
+        if "refinement_type" not in model_config:
+            model_config["refinement_type"] = "none"
         return make_model(ck["config"])
     return MODELS[name]()
 

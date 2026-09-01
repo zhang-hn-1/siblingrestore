@@ -4,6 +4,8 @@ import torch
 from torch import nn
 import torch.nn.functional as F
 
+from .refinement import build_refinement
+
 
 class LayerNorm2d(nn.Module):
     def __init__(self, channels: int) -> None:
@@ -108,9 +110,11 @@ class SiblingRestormer(nn.Module):
         degradation_conditioned: bool = False,
         identity_mode: str | None = None,
         identity_source_count: int = 71,
+        refinement_type: str | None = "none",
     ) -> None:
         super().__init__()
         b1, b2, latent_blocks, d2, d1 = blocks_per_level
+        self.refinement_type = str(refinement_type) if refinement_type is not None else "none"
         self.degradation_conditioned = bool(degradation_conditioned)
         if identity_mode not in (None, "classify", "branch", "contrast"):
             raise ValueError(f"unknown identity_mode: {identity_mode}")
@@ -168,6 +172,9 @@ class SiblingRestormer(nn.Module):
                 )
                 self.condition_proj[-1].bias.copy_(bias)
 
+        # Construct refinement after all original backbone/heads are initialized.
+        self.refine_module = build_refinement(self.refinement_type, dim, heads, dim * 4)
+
     def encode(self, image: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         level1 = self.enc1(self.patch(image))
         level2 = self.enc2(self.down1(level1))
@@ -193,7 +200,13 @@ class SiblingRestormer(nn.Module):
             )
         else:
             decoded_level2 = decoded_level1 = None
-        decoded2 = self.up2(latent)
+
+        # LMRB: refine latent before decoder (content/degradation heads use original latent)
+        latent_for_decoder = latent
+        if self.refinement_type == "lmrb":
+            latent_for_decoder = self.refine_module(latent)
+
+        decoded2 = self.up2(latent_for_decoder)
         decoded2 = self.dec2(self.reduce2(torch.cat([decoded2, level2], dim=1)))
         if decoded_level2 is not None:
             decoded2 = decoded2 * decoded_level2[0][..., None, None] + decoded_level2[1][..., None, None]
@@ -201,7 +214,21 @@ class SiblingRestormer(nn.Module):
         decoded1 = self.dec1(self.reduce1(torch.cat([decoded1, level1], dim=1)))
         if decoded_level1 is not None:
             decoded1 = decoded1 * decoded_level1[0][..., None, None] + decoded_level1[1][..., None, None]
-        restored = torch.clamp(image + self.output(decoded1), 0.0, 1.0)
+
+        # Dec1-level refinement (M1, M2, M3, M6): refine dec1 before output head
+        refine_dec1 = decoded1
+        if self.refinement_type in ("transformer", "naf", "alcrb", "haar"):
+            refine_dec1 = self.refine_module(decoded1)
+
+        base_residual = self.output(refine_dec1)
+
+        # RERH: additional correction after base residual
+        if self.refinement_type == "rerh":
+            correction = self.refine_module(refine_dec1, image, base_residual)
+            restored = torch.clamp(image + base_residual + correction, 0.0, 1.0)
+        else:
+            restored = torch.clamp(image + base_residual, 0.0, 1.0)
+
         identity_logits = None
         identity_feature = None
         if self.identity_mode == "classify":
