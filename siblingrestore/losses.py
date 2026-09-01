@@ -72,6 +72,95 @@ def frozen_anchor_loss(restored_embedding: torch.Tensor, clean_embedding: torch.
     return (1.0 - F.cosine_similarity(restored_embedding, clean_embedding, dim=-1)).mean()
 
 
+def adaptive_frozen_anchor_loss(
+    restored_embedding: torch.Tensor,
+    clean_embedding: torch.Tensor,
+    source_ids_per_sample: torch.Tensor,
+    tau: float = 0.10,
+    eps: float = 1e-8,
+) -> tuple[torch.Tensor, dict[str, float]]:
+    """Adaptive anchor: weight each sample's anchor loss by source confusion risk.
+
+    Instead of uniformly applying ``1 - cos(e_i, p_i)`` to every sample, this
+    computes a per-source margin ``m_i = s^+_i - s^-_i`` where ``s^-`` is the
+    hardest *different-source* prototype in the batch.  Samples with small or
+    negative margin (high source confusion risk) receive larger weight; samples
+    with margin >= tau receive zero weight.
+
+    Args:
+        restored_embedding: ``[N, D]`` verifier embeddings of restored images.
+        clean_embedding: ``[S, D]`` verifier embeddings of unique clean sources.
+        source_ids_per_sample: ``[N]`` integer source id for each restored
+            sample, mapping into ``[0, S)``.
+        tau: margin threshold.  ``m_i >= tau`` → weight 0; ``m_i <= 0`` → 1.
+        eps: numerical stability for the active-weight denominator.
+
+    Returns:
+        ``(loss, diagnostics)`` where diagnostics contains active_ratio,
+        mean_margin, mean_weight, mean_pos_sim, mean_neg_sim, raw_loss.
+    """
+    if restored_embedding.shape[0] != source_ids_per_sample.shape[0]:
+        raise ValueError(
+            f"restored rows {restored_embedding.shape[0]} != source_ids {source_ids_per_sample.shape[0]}"
+        )
+    restored_norm = F.normalize(restored_embedding.float(), dim=-1)
+    clean_norm = F.normalize(clean_embedding.float().detach(), dim=-1)
+    num_sources = clean_norm.shape[0]
+
+    # ``cos_sim[i, j]`` = cosine between restored sample i and clean source j.
+    cos_sim = restored_norm @ clean_norm.t()  # [N, S]
+    source_ids = source_ids_per_sample.long()
+
+    # Positive similarity: each sample's cosine to its own source prototype.
+    pos_sim = cos_sim.gather(dim=1, index=source_ids.unsqueeze(1)).squeeze(1)  # [N]
+
+    # Hard negative: max cosine among *different* sources.  Same-source siblings
+    # must never be selected as negative.
+    source_mask = (
+        torch.arange(num_sources, device=cos_sim.device).unsqueeze(0) == source_ids.unsqueeze(1)
+    )  # [N, S] True where same source
+    masked_cos = cos_sim.masked_fill(source_mask, float("-inf"))  # [N, S]
+
+    # Check if any sample has no valid negative (batch has only one unique source).
+    has_neg = masked_cos.gt(float("-inf")).any(dim=1)  # [N]
+    neg_sim = masked_cos.max(dim=1).values  # [N]; -inf for samples with no neg
+    neg_sim = torch.where(has_neg, neg_sim, pos_sim.detach())  # safe fallback
+
+    margin = pos_sim - neg_sim  # [N]
+
+    # Adaptive weight: ``w_i = clip((tau - m_i) / tau, 0, 1)``, detached.
+    weight = ((tau - margin) / tau).clamp(0.0, 1.0).detach()  # [N]
+    # Samples with no valid negative get weight 0 (skip them).
+    weight = weight * has_neg.float()
+
+    per_sample_loss = 1.0 - pos_sim  # [N]
+    active_weight_sum = weight.sum().clamp_min(eps)
+    loss = (weight * per_sample_loss).sum() / active_weight_sum
+
+    # If no active samples at all, return a legal zero that keeps the graph.
+    if float(weight.sum().detach()) < eps:
+        loss = per_sample_loss.sum() * 0.0
+
+    with torch.no_grad():
+        active_mask = weight > 0
+        active_ratio = float(active_mask.float().mean().cpu())
+        mean_margin = float(margin.mean().cpu())
+        mean_weight = float(weight.mean().cpu())
+        mean_pos_sim = float(pos_sim.mean().cpu())
+        mean_neg_sim = float(neg_sim[has_neg].mean().cpu()) if has_neg.any() else 0.0
+        raw_loss = float(per_sample_loss.mean().cpu())
+
+    diagnostics = {
+        "active_ratio": active_ratio,
+        "mean_margin": mean_margin,
+        "mean_weight": mean_weight,
+        "mean_pos_sim": mean_pos_sim,
+        "mean_neg_sim": mean_neg_sim,
+        "raw_loss": raw_loss,
+    }
+    return loss, diagnostics
+
+
 def verifier_sibling_consensus(
     features: torch.Tensor, margin: float = 0.3
 ) -> torch.Tensor:

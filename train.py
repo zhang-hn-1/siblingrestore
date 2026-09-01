@@ -16,6 +16,7 @@ from siblingrestore.baselines import MODELS as BASELINE_MODELS
 from siblingrestore.data import PairDataset, SiblingGroupDataset
 from siblingrestore.inference import restore_tiled
 from siblingrestore.losses import (
+    adaptive_frozen_anchor_loss,
     charbonnier,
     frozen_anchor_loss,
     gentle_identity_loss,
@@ -259,6 +260,7 @@ def train_step(
     grad = gradient_loss(restored, flat_clean)
     total = rec + weights["gradient"] * grad
     source = output_consistency = degradation = identity = anchor = None
+    adaptive_diagnostics: dict[str, float] = {}
 
     if mode == "sibling" and (source_weight > 0 or output_weight > 0 or degradation_weight > 0):
         content = output["content"].reshape(batch_size, siblings, -1)
@@ -347,6 +349,24 @@ def train_step(
                     restored_grouped,
                     margin=float(anchor_config.get("margin", 0.3)),
                 )
+            elif anchor_config is not None and anchor_config.get("type") == "adaptive":
+                # Adaptive Anchor: per-sample weight based on source margin.
+                # Samples with high source confusion risk (small/negative margin
+                # to hard negative) get larger anchor weight; well-separated
+                # samples get zero weight.  Weight is detached.
+                with torch.no_grad():
+                    clean_embedding_unique = verifier.embed(clean.float())  # [B, D]
+                restored_embedding = verifier.embed(restored.float())  # [B*K, D]
+                source_ids_per_sample = (
+                    torch.arange(batch_size, device=device)
+                    .repeat_interleave(siblings)
+                )  # [B*K]
+                anchor, adaptive_diagnostics = adaptive_frozen_anchor_loss(
+                    restored_embedding,
+                    clean_embedding_unique,
+                    source_ids_per_sample,
+                    tau=float(anchor_config.get("tau", 0.10)),
+                )
             else:
                 with torch.no_grad():
                     clean_embedding = verifier.embed(clean.float())
@@ -382,6 +402,7 @@ def train_step(
         "weighted_degradation": float(degradation_weight * degradation.detach()) if degradation is not None else 0.0,
         "weighted_identity": float(identity_weight * identity.detach()) if identity is not None else 0.0,
         "total_loss": float(total.detach()),
+        **{f"adaptive_{k}": v for k, v in adaptive_diagnostics.items()},
     }
     return total, values, {"reconstruction": rec, "gradient_objective": grad, "source": source, "output": output_consistency, "degradation": degradation, "identity": identity, "anchor": anchor}
 

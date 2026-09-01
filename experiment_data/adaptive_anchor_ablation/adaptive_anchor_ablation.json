@@ -1,0 +1,86 @@
+{
+  "version": "v1",
+  "split": "test",
+  "seed": 13,
+  "tau": 0.1,
+  "rows": [
+    {
+      "model": "A0",
+      "setting": "baseline",
+      "deg": false,
+      "anchor": false,
+      "psnr": 28.441,
+      "ssim": 0.9428,
+      "lpips": 0.1563,
+      "top1": 0.6462,
+      "eer": 0.0842,
+      "id_gain_margin": 0.081,
+      "source": "A0_recon"
+    },
+    {
+      "model": "B1",
+      "setting": "deg only",
+      "deg": true,
+      "anchor": false,
+      "psnr": 28.749,
+      "ssim": 0.9464,
+      "lpips": 0.1464,
+      "top1": 0.6735,
+      "eer": 0.0804,
+      "id_gain_margin": 0.0853,
+      "source": "B1_deg_only"
+    },
+    {
+      "model": "B2",
+      "setting": "fixed anchor only",
+      "deg": false,
+      "anchor": true,
+      "psnr": 27.914,
+      "ssim": 0.9389,
+      "lpips": 0.1637,
+      "top1": 0.6434,
+      "eer": 0.0884,
+      "id_gain_margin": 0.0795,
+      "source": "B2_anchor_only"
+    },
+    {
+      "model": "A5",
+      "setting": "deg + fixed anchor",
+      "deg": true,
+      "anchor": true,
+      "psnr": 28.791,
+      "ssim": 0.9458,
+      "lpips": 0.1433,
+      "top1": 0.6981,
+      "eer": 0.0799,
+      "id_gain_margin": 0.0846,
+      "source": "A5_no_sibling"
+    },
+    {
+      "model": "C1",
+      "setting": "adaptive only",
+      "deg": false,
+      "anchor": true,
+      "psnr": 28.069,
+      "ssim": 0.9412,
+      "lpips": 0.1555,
+      "top1": 0.6328,
+      "eer": 0.089,
+      "id_gain_margin": 0.0808,
+      "source": "C1_adaptive_anchor_only"
+    },
+    {
+      "model": "C2",
+      "setting": "deg + adaptive",
+      "deg": true,
+      "anchor": true,
+      "psnr": 28.602,
+      "ssim": 0.9444,
+      "lpips": 0.1502,
+      "top1": 0.6702,
+      "eer": 0.0826,
+      "id_gain_margin": 0.0844,
+      "source": "C2_deg_adaptive_anchor"
+    }
+  ]
+}

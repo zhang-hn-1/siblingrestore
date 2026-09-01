@@ -1,0 +1,169 @@
+{
+  "status": "independent_verifier_evaluation",
+  "eval_version": "v2",
+  "split": "test",
+  "sources": 256,
+  "restored_views": 1792,
+  "verifier_fingerprint": {
+    "path": "runs/campaigns/c001_sfr_v1/verifier_evaluator/best.pt",
+    "sha256": "d9b000aeb04d6e5dc64e6eff1fee7fc8c74e486935dd962fbcd1e26462451ae6",
+    "bytes": 2031198,
+    "source_count": 895,
+    "embedding_dim": 128
+  },
+  "data_pkg_fingerprint": {
+    "audit_index_sha256": "a4b095234bc8b84b0767b317b1fcb1e312f059357d0989e20e8627c3777af1db",
+    "audit_groups_sha256": "990880d4c2a628991b6bae1b359001829145359f92eca2c4ed60680dd2eef437"
+  },
+  "config_fingerprint": {
+    "sha256": "63dfb70727ac",
+    "config": {
+      "data_root": "data/plamd_sfr_v1",
+      "mode": "independent",
+      "optimizer": "adamw",
+      "scheduler": "cosine",
+      "device": "cuda",
+      "crop_size": 256,
+      "batch_size": 8,
+      "num_workers": 4,
+      "epochs": 700,
+      "max_steps": 12000,
+      "validation_interval_steps": 500,
+      "validation_split": "val",
+      "gradient_diagnostic_interval_steps": 200,
+      "eval_tile_size": 512,
+      "eval_tile_overlap": 32,
+      "learning_rate": 0.0002,
+      "min_learning_rate": 1e-06,
+      "weight_decay": 0.0001,
+      "gradient_clip": 1.0,
+      "amp": true,
+      "loss_weights": {
+        "gradient": 0.05,
+        "source": 0.0,
+        "output": 0.0,
+        "degradation": 0.0,
+        "temperature": 0.1,
+        "same_class_negative_weight": 2.0
+      },
+      "model_family": "ffanet",
+      "seed": 13,
+      "output_dir": "runs/campaigns/c005_official_group1/ffanet/13"
+    }
+  },
+  "lpips_protocol": "alex_256x256",
+  "aggregate": {
+    "psnr": 26.61209595666261,
+    "ssim": 0.920599325846914,
+    "input_to_clean_top1": 0.30301339285714285,
+    "restored_to_clean_top1": 0.5301339285714286,
+    "input_own_anchor_cos": 0.8838628336907277,
+    "restored_own_anchor_cos": 0.9549748356169273,
+    "input_nearest_impostor_cos": 0.9808462887303904,
+    "restored_nearest_impostor_cos": 0.9875582486191499,
+    "input_margin": -0.09698345503966266,
+    "restored_margin": -0.032583413002222575,
+    "identity_gain_margin": 0.06440004203744008,
+    "lpips": 0.20580611324424222,
+    "input_roc_auc": 0.9077389061093187,
+    "input_eer": 0.16866684173669466,
+    "restored_roc_auc": 0.9556736549600309,
+    "restored_eer": 0.10818561799719888,
+    "roc_auc_gain": 0.04793474885071214,
+    "eer_gain": 0.060481223739495785,
+    "sibling_output_l1": 0.056135072256438434,
+    "cross_source_output_l1": 0.245931938290596,
+    "intra_inter_output_ratio": 0.22825450263441827
+  },
+  "per_degradation": {
+    "blur": {
+      "psnr": 27.585351867935557,
+      "ssim": 0.9463220878969878,
+      "lpips": 0.1922210316552082,
+      "restored_to_clean_top1": 0.640625,
+      "input_roc_auc": 0.9836923636642156,
+      "input_eer": 0.06010263480392157,
+      "restored_roc_auc": 0.9812026079963235,
+      "restored_eer": 0.06260723039215686,
+      "roc_auc_gain": -0.002489755667892113,
+      "eer_gain": -0.002504595588235292
+    },
+    "haze": {
+      "psnr": 21.942189162990687,
+      "ssim": 0.8521877792663872,
+      "lpips": 0.09888337148731807,
+      "restored_to_clean_top1": 0.2734375,
+      "input_roc_auc": 0.8628581925934437,
+      "input_eer": 0.21666666666666667,
+      "restored_roc_auc": 0.9080273198146446,
+      "restored_eer": 0.16953125,
+      "roc_auc_gain": 0.04516912722120092,
+      "eer_gain": 0.04713541666666668
+    },
+    "inpainting": {
+      "psnr": 28.20755979512891,
+      "ssim": 0.958979141432792,
+      "lpips": 0.12930397629679646,
+      "restored_to_clean_top1": 0.69140625,
+      "input_roc_auc": 0.9024903540517769,
+      "input_eer": 0.16237745098039216,
+      "restored_roc_auc": 0.9826910879097733,
+      "restored_eer": 0.06013327205882353,
+      "roc_auc_gain": 0.08020073385799642,
+      "eer_gain": 0.10224417892156863
+    },
+    "lowlight": {
+      "psnr": 28.835128294896787,
+      "ssim": 0.9699272287543863,
+      "lpips": 0.19326888375508133,
+      "restored_to_clean_top1": 0.48046875,
+      "input_roc_auc": 0.9088376512714461,
+      "input_eer": 0.13652726715686275,
+      "restored_roc_auc": 0.9651356416590073,
+      "restored_eer": 0.09795496323529412,
+      "roc_auc_gain": 0.056297990387561225,
+      "eer_gain": 0.03857230392156863
+    },
+    "noise": {
+      "psnr": 27.49722071348448,
+      "ssim": 0.9413777191657573,
+      "lpips": 0.22179796773707494,
+      "restored_to_clean_top1": 0.71875,
+      "input_roc_auc": 0.9512263877719056,
+      "input_eer": 0.09368106617647058,
+      "restored_roc_auc": 0.9896249808517157,
+      "restored_eer": 0.04137561274509804,
+      "roc_auc_gain": 0.038398593079810084,
+      "eer_gain": 0.052305453431372544
+    },
+    "rain": {
+      "psnr": 30.04871635185816,
+      "ssim": 0.960595291107893,
+      "lpips": 0.1778032330039423,
+      "restored_to_clean_top1": 0.703125,
+      "input_roc_auc": 0.9836129581227022,
+      "input_eer": 0.0608609068627451,
+      "restored_roc_auc": 0.9785070082720588,
+      "restored_eer": 0.07215073529411764,
+      "roc_auc_gain": -0.005105949850643388,
+      "eer_gain": -0.011289828431372544
+    },
+    "snow": {
+      "psnr": 22.16850551034369,
+      "ssim": 0.814806033304194,
+      "lpips": 0.4273643287742743,
+      "restored_to_clean_top1": 0.203125,
+      "input_roc_auc": 0.7788389916513481,
+      "input_eer": 0.2929304534313726,
+      "restored_roc_auc": 0.8892493154488358,
+      "restored_eer": 0.18426776960784313,
+      "roc_auc_gain": 0.11041032379748772,
+      "eer_gain": 0.10866268382352945
+    }
+  },
+  "notes": [
+    "Headline identity metrics use an independent frozen verifier.",
+    "Test remains sealed unless explicitly requested after validation selection.",
+    "noise pairs: clean aligned to degraded native size (Lanczos) per Method B protocol."
+  ]
+}
