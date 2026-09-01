@@ -84,6 +84,9 @@ def cmd_prepare(spec_path: Path) -> None:
     shared_verifier_ready = bool(shared_verifier and shared_verifier.exists())
     if shared_verifier_ready:
         verifier_best = shared_verifier
+    evaluator_best = Path(spec.get("evaluator_checkpoint", verifier_best))
+    if not evaluator_best.exists():
+        raise FileNotFoundError(f"evaluator checkpoint missing: {evaluator_best}")
     jobs.append({"id": "verifier", "type": "verifier",
                  "cmd": [PYTHON, str(PROJECT_ROOT / "train_verifier.py"), "--config", str(verifier_cfg_out)],
                  "depends": [],
@@ -124,7 +127,7 @@ def cmd_prepare(spec_path: Path) -> None:
                          "model": model, "seed": seed, "split": split,
                          "cmd": [PYTHON, str(PROJECT_ROOT / "scripts" / "evaluate_frozen_verifier_v2.py"),
                                  "--checkpoint", str(run_root / model / str(seed) / "best.pt"),
-                                 "--verifier", str(verifier_best),
+                                 "--verifier", str(evaluator_best),
                                  "--data-root", data_root,
                                  "--output", str(result_root / f"{model}.{seed}.{split}.json"),
                                  "--split", split, "--device", "cuda",
