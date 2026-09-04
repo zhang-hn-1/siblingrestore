@@ -17,6 +17,7 @@ MODELS = {
     "M4_rerh": "rerh",
     "M5_lmrb": "lmrb",
     "M6_hfrb": "haar",
+    "M7_alcrb_hfrb": "alcrb_hfrb",
 }
 
 
@@ -47,4 +48,4 @@ def test_all_configs_have_strict_common_budget():
 def test_fairness_audit_exists_and_passes():
     audit = json.loads((ROOT / "results" / "psnr_modules_12k" / "fairness_audit.json").read_text(encoding="utf-8"))
     assert audit["status"] == "pass"
-    assert len(audit["models"]) == 7
+    assert len(audit["models"]) == 8

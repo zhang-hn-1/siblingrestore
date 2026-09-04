@@ -1,0 +1,22 @@
+{
+  "name": "c008_alcrb_hfrb_12k",
+  "data_root": "data/plamd_sfr_v1",
+  "template_config_dir": "configs/psnr_modules_12k",
+  "run_root": "runs/psnr_modules_12k",
+  "result_root": "results/psnr_modules_12k",
+  "verifier_template": "verifier_evaluator.json",
+  "verifier_source_count": 895,
+  "models": ["M7_alcrb_hfrb"],
+  "seeds": [13],
+  "splits": ["val"],
+  "gpus": [0],
+  "shared_verifier": "runs/baselines_500/verifier_teacher/best.pt",
+  "evaluator_checkpoint": "runs/campaigns/c001_sfr_v1/verifier_evaluator/best.pt",
+  "evaluator_sha256": "d9b000aeb04d6e5dc64e6eff1fee7fc8c74e486935dd962fbcd1e26462451ae6",
+  "lpips": true,
+  "overrides": {
+    "max_steps": 12000,
+    "validation_interval_steps": 500,
+    "validation_split": "val"
+  }
+}

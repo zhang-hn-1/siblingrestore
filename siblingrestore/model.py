@@ -230,7 +230,7 @@ class SiblingRestormer(nn.Module):
 
         # Dec1-level refinement (M1, M2, M3, M6): refine dec1 before output head
         refine_dec1 = decoded1
-        if self.refinement_type in ("transformer", "naf", "alcrb", "haar"):
+        if self.refinement_type in ("transformer", "naf", "alcrb", "haar", "alcrb_hfrb"):
             refine_dec1 = self.refine_module(decoded1)
 
         base_residual = self.output(refine_dec1)

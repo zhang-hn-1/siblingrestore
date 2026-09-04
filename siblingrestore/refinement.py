@@ -377,6 +377,20 @@ class HFRB(nn.Module):
         return shortcut + self.beta * recon
 
 
+@register("alcrb_hfrb")
+class ALCRBHFRB(nn.Module):
+    """Sequential ALCRB then HFRB refinement on the decoded feature map."""
+
+    def __init__(self, dim: int = 48, **kwargs):
+        super().__init__()
+        self.alcrb = ALCRB(dim=dim)
+        self.hfrb = HFRB(dim=dim)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return self.hfrb(self.alcrb(x))
+
+
+
 def haar_reconstruction_test(device: str = 'cpu', eps: float = 1e-6) -> bool:
     """Test that Haar transform + inverse is numerically consistent."""
     haar = _HaarTransform(scale=0.5)

@@ -10,7 +10,7 @@ from siblingrestore.model import SiblingRestormer
 from siblingrestore.refinement import _HaarTransform
 
 
-TYPES = ("none", "transformer", "naf", "alcrb", "rerh", "lmrb", "haar")
+TYPES = ("none", "transformer", "naf", "alcrb", "rerh", "lmrb", "haar", "alcrb_hfrb")
 
 
 def make_model(refinement_type: str) -> SiblingRestormer:
@@ -42,7 +42,7 @@ def test_all_refinements_cpu_forward_backward():
 def test_zero_initialized_refinements_are_identity():
     torch.manual_seed(13)
     x = torch.randn(1, 48, 16, 16)
-    for refinement_type in ("transformer", "naf", "alcrb", "haar"):
+    for refinement_type in ("transformer", "naf", "alcrb", "haar", "alcrb_hfrb"):
         model = make_model(refinement_type)
         y = model.refine_module(x)
         assert torch.equal(x, y), refinement_type

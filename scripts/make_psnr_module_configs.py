@@ -21,6 +21,7 @@ MODELS = {
     "M4_rerh": "rerh",
     "M5_lmrb": "lmrb",
     "M6_hfrb": "haar",
+    "M7_alcrb_hfrb": "alcrb_hfrb",
 }
 
 

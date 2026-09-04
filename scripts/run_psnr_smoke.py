@@ -13,7 +13,7 @@ CONFIG_ROOT = ROOT / "configs" / "psnr_modules_12k"
 SMOKE_ROOT = ROOT / "runs" / "psnr_modules_12k_smoke"
 MODELS = [
     "M0_deg_fixed_baseline", "M1_transformer_refine", "M2_naf_refine",
-    "M3_alcrb", "M4_rerh", "M5_lmrb", "M6_hfrb",
+    "M3_alcrb", "M4_rerh", "M5_lmrb", "M6_hfrb", "M7_alcrb_hfrb",
 ]
 
 

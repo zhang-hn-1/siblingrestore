@@ -33,7 +33,7 @@ def test_none_state_dict_and_forward_are_compatible():
 def test_shared_backbone_initialization_is_identical():
     torch.manual_seed(13)
     baseline = SiblingRestormer(**kwargs(), refinement_type="none")
-    for refinement_type in ("transformer", "naf", "alcrb", "rerh", "lmrb", "haar"):
+    for refinement_type in ("transformer", "naf", "alcrb", "rerh", "lmrb", "haar", "alcrb_hfrb"):
         torch.manual_seed(13)
         candidate = SiblingRestormer(**kwargs(), refinement_type=refinement_type)
         for name, parameter in baseline.named_parameters():
