@@ -259,7 +259,8 @@ def cmd_run(spec_path: Path) -> None:
 def cmd_status(spec_path: Path) -> None:
     spec = load_json(spec_path)
     name = spec["name"]
-    manifest_path = Path("results") / "campaigns" / name / "jobs.jsonl"
+    result_root = Path(spec.get("result_root", Path("results") / "campaigns" / name))
+    manifest_path = result_root / "jobs.jsonl"
     if not manifest_path.exists():
         print("manifest 不存在，先 prepare")
         return
