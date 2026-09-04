@@ -3,8 +3,8 @@ set -u
 
 ROOT="/home/zhanghangning/siblingrestore-pilot-server"
 SPEC="$ROOT/scripts/campaigns/c008_alcrb_hfrb_12k.json"
-MANIFEST="$ROOT/results/psnr_modules_12k/c008_jobs.jsonl"
-CAMPAIGN_MANIFEST="$ROOT/results/psnr_modules_12k/jobs.jsonl"
+MANIFEST="$ROOT/results/psnr_modules_12k/c008_alcrb_hfrb/jobs.jsonl"
+CAMPAIGN_MANIFEST="$ROOT/results/psnr_modules_12k/c008_alcrb_hfrb/jobs.jsonl"
 WATCH_LOG="$ROOT/results/psnr_modules_12k/c008_screen_watchdog.log"
 PYTHON="$ROOT/.venv/bin/python"
 
