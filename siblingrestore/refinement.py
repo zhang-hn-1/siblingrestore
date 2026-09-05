@@ -30,12 +30,12 @@ def register(name: str):
     return decorator
 
 
-def build_refinement(refinement_type: str, dim: int, heads: tuple[int, int, int], latent_dim: int) -> nn.Module | None:
+def build_refinement(refinement_type: str, dim: int, heads: tuple[int, int, int], latent_dim: int, **kwargs) -> nn.Module | None:
     """Build a refinement module by type, or return None for 'none'.
 
     Args:
         refinement_type: one of 'none', 'transformer', 'naf', 'alcrb',
-                         'rerh', 'lmrb', 'haar'
+                         'alcrb_safe', 'rerh', 'lmrb', 'haar'
         dim: base channel dimension
         heads: (enc1_head, enc2_head, latent_head)
         latent_dim: latent dimension (dim * 4)
@@ -192,6 +192,38 @@ class _SimplifiedNAFBlock(nn.Module):
         x = a * b
         x = self.conv2(x)
         return shortcut + self.beta * x
+
+
+@register("alcrb_safe")
+class SafeALCRB(nn.Module):
+    """ALCRB with a bounded, initially disabled residual gate.
+
+    The zero-initialized projection makes this module exactly identity at
+    initialization while allowing a small learned correction during training.
+    """
+
+    def __init__(self, dim: int = 48, gate_max: float = 0.15, **kwargs):
+        super().__init__()
+        self.alcrb = ALCRB(dim=dim)
+        self.residual = nn.Sequential(
+            RefineLayerNorm2d(dim),
+            nn.Conv2d(dim, dim, 3, padding=1, groups=dim, bias=False),
+            nn.GELU(),
+            nn.Conv2d(dim, dim, 1, bias=False),
+        )
+        nn.init.zeros_(self.residual[-1].weight)
+        self.gate = nn.Conv2d(dim, dim, 1)
+        nn.init.zeros_(self.gate.weight)
+        nn.init.constant_(self.gate.bias, -4.0)
+        self.gate_max = float(gate_max)
+        if not 0.0 < self.gate_max <= 1.0:
+            raise ValueError("gate_max must be in (0, 1]")
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        base = self.alcrb(x)
+        correction = self.residual(base)
+        gate = self.gate(base).sigmoid() * self.gate_max
+        return base + gate * correction
 
 
 @register("rerh")

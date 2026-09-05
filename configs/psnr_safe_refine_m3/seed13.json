@@ -1,0 +1,53 @@
+{
+  "data_root": "data/plamd_sfr_v1",
+  "mode": "sibling",
+  "optimizer": "adamw",
+  "scheduler": "cosine",
+  "device": "cuda",
+  "crop_size": 256,
+  "sibling_count": 2,
+  "batch_size": 4,
+  "num_workers": 2,
+  "epochs": 700,
+  "max_steps": 12000,
+  "validation_interval_steps": 500,
+  "validation_split": "val",
+  "gradient_diagnostic_interval_steps": 200,
+  "eval_tile_size": 512,
+  "eval_tile_overlap": 32,
+  "learning_rate": 0.0001,
+  "min_learning_rate": 1e-6,
+  "weight_decay": 0.0001,
+  "gradient_clip": 1.0,
+  "amp": true,
+  "model": {
+    "dim": 48,
+    "blocks_per_level": [2, 2, 3, 2, 2],
+    "heads": [1, 2, 4],
+    "projection_dim": 128,
+    "degradation_conditioned": false,
+    "refinement_type": "alcrb_safe",
+    "refinement_gate_max": 0.15
+  },
+  "seed": 13,
+  "loss_weights": {
+    "gradient": 0.05,
+    "source": 0.0,
+    "output": 0.0,
+    "degradation": 0.01,
+    "temperature": 0.1,
+    "same_class_negative_weight": 2.0,
+    "anchor": 0.0,
+    "identity_safe": 0.05,
+    "identity_safe_margin": 0.0
+  },
+  "init_from": "runs/psnr_modules_12k/M3_alcrb/13/best.pt",
+  "identity_safe_teacher": "runs/psnr_modules_12k/M3_alcrb/13/best.pt",
+  "identity_safe_warmup_steps": 3000,
+  "output_dir": "runs/psnr_safe_refine/m3_alcrb_safe_seed13",
+  "frozen_verifier": {
+    "checkpoint": "runs/campaigns/c001_sfr_v1/verifier_evaluator/best.pt",
+    "sha256": "d9b000aeb04d6e5dc64e6eff1fee7fc8c74e486935dd962fbcd1e26462451ae6",
+    "pcgrad": false
+  }
+}

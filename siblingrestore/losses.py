@@ -50,6 +50,33 @@ def source_contrastive_loss(
     return F.cross_entropy(logits, own_source)
 
 
+def identity_safe_distillation(
+    student_embedding: torch.Tensor,
+    teacher_embedding: torch.Tensor,
+    clean_embedding: torch.Tensor,
+    margin: float = 0.0,
+) -> tuple[torch.Tensor, torch.Tensor]:
+    """Distill identity direction while hinging against teacher fidelity.
+
+    The teacher and clean embeddings are detached. The hinge is active only
+    when the student's similarity to the clean source falls below the
+    teacher's similarity, so reconstruction remains free to improve otherwise.
+    Returns ``(loss, active_ratio)``.
+    """
+    student = F.normalize(student_embedding.float(), dim=-1)
+    teacher = F.normalize(teacher_embedding.float().detach(), dim=-1)
+    clean = F.normalize(clean_embedding.float().detach(), dim=-1)
+    if student.shape != teacher.shape:
+        raise ValueError(f"student/teacher shape mismatch: {student.shape} vs {teacher.shape}")
+    if clean.shape[0] * (student.shape[0] // clean.shape[0]) != student.shape[0]:
+        raise ValueError("clean embeddings must repeat evenly across restored views")
+    positive_student = (student * clean).sum(dim=-1)
+    positive_teacher = (teacher * clean).sum(dim=-1)
+    hinge = F.relu(positive_teacher - positive_student + float(margin))
+    distill = (1.0 - (student * teacher).sum(dim=-1)).mean()
+    return hinge.mean() + distill, (hinge > 0).float().mean().detach()
+
+
 def sibling_output_consistency(restored: torch.Tensor) -> torch.Tensor:
     """Pairwise L1 consistency among aligned outputs [B, K, C, H, W]."""
     siblings = restored.shape[1]

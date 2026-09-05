@@ -111,6 +111,7 @@ class SiblingRestormer(nn.Module):
         identity_mode: str | None = None,
         identity_source_count: int = 71,
         refinement_type: str | None = "none",
+        refinement_gate_max: float = 0.15,
     ) -> None:
         super().__init__()
         b1, b2, latent_blocks, d2, d1 = blocks_per_level
@@ -173,7 +174,10 @@ class SiblingRestormer(nn.Module):
                 self.condition_proj[-1].bias.copy_(bias)
 
         # Construct refinement after all original backbone/heads are initialized.
-        self.refine_module = build_refinement(self.refinement_type, dim, heads, dim * 4)
+        self.refine_module = build_refinement(
+            self.refinement_type, dim, heads, dim * 4,
+            gate_max=float(refinement_gate_max),
+        )
 
     @staticmethod
     def _pad_input(image: torch.Tensor, multiple: int = 4) -> tuple[torch.Tensor, tuple[int, int]]:
@@ -230,7 +234,7 @@ class SiblingRestormer(nn.Module):
 
         # Dec1-level refinement (M1, M2, M3, M6): refine dec1 before output head
         refine_dec1 = decoded1
-        if self.refinement_type in ("transformer", "naf", "alcrb", "haar", "alcrb_hfrb"):
+        if self.refinement_type in ("transformer", "naf", "alcrb", "alcrb_safe", "haar", "alcrb_hfrb"):
             refine_dec1 = self.refine_module(decoded1)
 
         base_residual = self.output(refine_dec1)

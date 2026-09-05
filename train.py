@@ -21,6 +21,7 @@ from siblingrestore.losses import (
     frozen_anchor_loss,
     gentle_identity_loss,
     gradient_loss,
+    identity_safe_distillation,
     multi_scale_anchor_loss,
     multi_scale_sibling_consensus,
     reliability_guided_sibling_distillation,
@@ -132,6 +133,7 @@ def make_model(config: dict[str, object]) -> torch.nn.Module:
         identity_mode=model_config.get("identity_mode", None),
         identity_source_count=int(model_config.get("identity_source_count", 71)),
         refinement_type=str(model_config.get("refinement_type", "none")),
+        refinement_gate_max=float(model_config.get("refinement_gate_max", 0.15)),
     )
 
 
@@ -223,6 +225,9 @@ def train_step(
     device: torch.device,
     verifier: torch.nn.Module | None = None,
     anchor_config: dict[str, object] | None = None,
+    teacher_model: torch.nn.Module | None = None,
+    global_step: int = 0,
+    warmup_steps: int = 0,
 ) -> tuple[torch.Tensor, dict[str, float], dict[str, torch.Tensor | None]]:
     source_weight = float(weights["source"])
     output_weight = float(weights["output"])
@@ -261,6 +266,8 @@ def train_step(
     grad = gradient_loss(restored, flat_clean)
     total = rec + weights["gradient"] * grad
     source = output_consistency = degradation = identity = anchor = None
+    safe_identity = None
+    safe_identity_active = 0.0
     adaptive_diagnostics: dict[str, float] = {}
 
     if mode == "sibling" and (source_weight > 0 or output_weight > 0 or degradation_weight > 0):
@@ -375,6 +382,24 @@ def train_step(
                 clean_embedding = clean_embedding.repeat_interleave(siblings, dim=0)
                 anchor = frozen_anchor_loss(restored_embedding, clean_embedding)
         total = total + anchor_weight * anchor
+    safe_weight = float(weights.get("identity_safe", 0.0))
+    if mode == "sibling" and safe_weight > 0 and teacher_model is not None:
+        if verifier is None:
+            raise ValueError("identity_safe requires a frozen verifier")
+        ramp = 1.0 if warmup_steps <= 0 else min(1.0, float(global_step) / float(warmup_steps))
+        with torch.autocast(device_type=device.type, enabled=False), torch.no_grad():
+            teacher_output = teacher_model(flat_degraded.float())
+            teacher_restored = teacher_output["restored"] if isinstance(teacher_output, dict) else teacher_output
+            teacher_embedding = verifier.embed(teacher_restored)
+            clean_embedding = verifier.embed(clean.float()).repeat_interleave(siblings, dim=0)
+        student_embedding = verifier.embed(restored.float())
+        safe_identity, active = identity_safe_distillation(
+            student_embedding, teacher_embedding, clean_embedding,
+            margin=float(weights.get("identity_safe_margin", 0.0)),
+        )
+        safe_weight *= ramp
+        total = total + safe_weight * safe_identity
+        safe_identity_active = float(active)
     if mode == "sibling" and identity_weight > 0:
         if model.identity_mode == "classify":
             target = batch["source_ids"].to(device).repeat_interleave(siblings)
@@ -402,10 +427,13 @@ def train_step(
         "weighted_output": float(output_weight * output_consistency.detach()) if output_consistency is not None else 0.0,
         "weighted_degradation": float(degradation_weight * degradation.detach()) if degradation is not None else 0.0,
         "weighted_identity": float(identity_weight * identity.detach()) if identity is not None else 0.0,
+        "identity_safe": float(safe_identity.detach()) if safe_identity is not None else 0.0,
+        "weighted_identity_safe": float(safe_weight * safe_identity.detach()) if safe_identity is not None else 0.0,
+        "identity_safe_active_ratio": safe_identity_active,
         "total_loss": float(total.detach()),
         **{f"adaptive_{k}": v for k, v in adaptive_diagnostics.items()},
     }
-    return total, values, {"reconstruction": rec, "gradient_objective": grad, "source": source, "output": output_consistency, "degradation": degradation, "identity": identity, "anchor": anchor}
+    return total, values, {"reconstruction": rec, "gradient_objective": grad, "source": source, "output": output_consistency, "degradation": degradation, "identity": identity, "anchor": anchor, "identity_safe": safe_identity}
 
 
 @torch.no_grad()
@@ -462,12 +490,29 @@ def main() -> None:
     output_dir = Path(config["output_dir"])
     output_dir.mkdir(parents=True, exist_ok=True)
     model = make_model(config).to(device)
+    init_from = config.get("init_from")
+    if init_from:
+        initialization = torch.load(Path(init_from), map_location="cpu", weights_only=False)
+        initial_state = initialization["model"]
+        if str(config["model"].get("refinement_type", "none")) == "alcrb_safe":
+            # Reuse the trained M3 ALCRB weights inside the safe wrapper.
+            initial_state = {
+                (f"refine_module.alcrb.{key[len('refine_module.'):]}")
+                if key.startswith("refine_module.") else key: value
+                for key, value in initial_state.items()
+            }
+        missing, unexpected = model.load_state_dict(initial_state, strict=False)
+        if unexpected:
+            raise ValueError(f"unexpected initialization parameters: {unexpected}")
+        config["initialization_missing_keys"] = list(missing)
     weights = {key: float(value) for key, value in config["loss_weights"].items()}
     anchor_weight = float(weights.get("anchor", 0.0))
     verifier = None
     verifier_metadata = None
+    teacher_model = None
     pcgrad_enabled = False
-    if anchor_weight > 0:
+    safe_weight = float(weights.get("identity_safe", 0.0))
+    if anchor_weight > 0 or safe_weight > 0:
         verifier_config = config.get("frozen_verifier")
         if not isinstance(verifier_config, dict) or not verifier_config.get("checkpoint"):
             raise ValueError("positive anchor weight requires frozen_verifier.checkpoint")
@@ -478,6 +523,15 @@ def main() -> None:
         )
         pcgrad_enabled = bool(verifier_config.get("pcgrad", False))
         config["frozen_verifier_fingerprint"] = verifier_metadata
+    teacher_path = config.get("identity_safe_teacher")
+    if safe_weight > 0:
+        if not teacher_path:
+            raise ValueError("identity_safe requires identity_safe_teacher")
+        teacher_checkpoint = torch.load(Path(teacher_path), map_location="cpu", weights_only=False)
+        teacher_model = make_model(teacher_checkpoint["config"]).to(device).eval()
+        teacher_model.load_state_dict(teacher_checkpoint["model"])
+        for parameter in teacher_model.parameters():
+            parameter.requires_grad_(False)
     all_parameters = list(model.parameters())
     optimizer = torch.optim.AdamW(
         model.parameters(), lr=float(config["learning_rate"]), weight_decay=float(config["weight_decay"])
@@ -612,6 +666,8 @@ def main() -> None:
                 loss, components, losses = train_step(
                     model, batch, str(config["mode"]), weights, device,
                     verifier=verifier, anchor_config=config.get("anchor_config"),
+                    teacher_model=teacher_model, global_step=step,
+                    warmup_steps=int(config.get("identity_safe_warmup_steps", 3000)),
                 )
             diagnostic = {
                 "grad_cos_rec_source": None, "grad_cos_rec_output": None,
