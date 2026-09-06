@@ -13,23 +13,42 @@
 
 数据来源为 [PLAMD Zenodo 记录](https://zenodo.org/records/21321669)。本包只用于将你已下载的数据搬到自己的研究服务器；使用或进一步分发前仍应遵守原数据页面列出的许可和引用要求。当前 PLAMD 证据属于受控/合成退化实验，不能直接表述为真实野外鲁棒性。
 
-## 当前主模型与实验角色
+## 当前最佳模型（SOTA）
 
-主干是轻量 Restormer-style encoder-decoder（正式配置约 1.19M 参数）。推理时仍然只输入一张退化图。SiblingRestore 仅在训练时增加三种约束：
+在当前 `plamd_sfr_v1` 数据集、7 种退化、`seed=13`、`sibling` 训练协议和统一 frozen-verifier `v2 + LPIPS` 评估口径下，**Safe-refine 是当前项目的 SOTA 模型**。它从 M3 ALCRB checkpoint 初始化，加入 identity-safe gated residual 和 frozen-verifier distillation。
 
-1. degraded sibling 到同一 clean source anchor 的来源对比学习；
-2. 同类别、不同来源作为加权 hard negatives；
-3. sibling 输出一致性和退化类型辅助分类。
+这里的 SOTA 是本项目当前实验范围内的结果，不代表已在所有公开数据集或所有方法上取得领域 SOTA。当前结果仍是单 seed；多 seed 和独立 embedding 验证是后续稳健性工作。
 
-三组实验使用相同主干、优化器、crop、5000 updates 和每步 8 张退化图：
+| Split | Sources / views | PSNR | SSIM | Restored Top-1 | ROC-AUC | EER | LPIPS |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| Val | 128 / 896 | **28.2325** | **0.94557** | **0.7344** | **0.9726** | **0.07354** | **0.14565** |
+| Test | 256 / 1792 | **28.8228** | **0.94536** | **0.6802** | **0.9729** | **0.08373** | **0.14420** |
 
-| 实验 | 采样 | 每步退化图 | 额外 sibling loss |
-|---|---:|---:|---:|
-| independent | 8 个独立 pair | 8 | 无 |
-| group control | 4 个来源 × 2 siblings | 8 | 无 |
-| SiblingRestore | 4 个来源 × 2 siblings | 8 | 有 |
+与原始 M3 ALCRB 相比，Safe-refine 在 test 上 PSNR 提升 `+0.7750 dB`、Restored Top-1 提升 `+0.0485`、ROC-AUC 提升 `+0.0061`、EER 降低 `0.0102`、LPIPS 降低 `0.0234`。
 
-`group control` 用来排除“只是 grouped sampling 带来收益”的解释。
+### 发布权重
+
+最新 Safe-refine 权重：
+
+```text
+weights/psnr_safe_refine/m3_alcrb_safe_seed13/best.pt
+```
+
+- 文件大小：约 31.4 MB
+- SHA256：`70fa82f52e39234ecb113873688cba55eaf95ba68a2501b90169941719d6cd58`
+- 配置：`configs/psnr_safe_refine_m3/seed13.json`
+- 训练输出和完整日志保留在本地 `runs/`，不纳入仓库。
+
+使用发布权重进行单图推理：
+
+```bash
+python infer.py \
+  --checkpoint weights/psnr_safe_refine/m3_alcrb_safe_seed13/best.pt \
+  --input path/to/degraded.jpg \
+  --output restored.png
+```
+
+完整实验数据见 [`EXPERIMENT_RESULTS_ALL.md`](EXPERIMENT_RESULTS_ALL.md)。
 
 ## 服务器安装与 smoke
 
@@ -105,4 +124,7 @@ python infer.py --checkpoint runs/pilot_sibling/best.pt \
   --input path/to/degraded.jpg --output restored.png
 ```
 
-当前代码是“验证研究假设的 pilot 主模型”，不是最终顶会版本。只有通过上述门槛，才值得加入检测/分割 task metric、LPIPS/DISTS、强公开 baseline 和更大数据范围。
+## 早期 Pilot 说明
+
+本节中的 `pilot` 命令和 100-source 小规模数据仅用于复现实验管线与早期假设验证；当前项目的正式最佳模型和完整结果请以“当前最佳模型（SOTA）”章节、`EXPERIMENT_RESULTS_ALL.md` 以及 `plamd_sfr_v1` 结果文件为准。
+
