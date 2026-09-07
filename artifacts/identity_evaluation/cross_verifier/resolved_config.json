@@ -1,0 +1,10 @@
+{
+  "data_root": "data/plamd_sfr_v1",
+  "split": "train",
+  "source_count": 895,
+  "steps": 3000,
+  "batch_size": 32,
+  "seed": 2026,
+  "architecture": "torchvision.resnet18(weights=None)+128d projector",
+  "device": "cuda"
+}
