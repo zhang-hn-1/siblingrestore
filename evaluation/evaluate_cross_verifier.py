@@ -14,6 +14,7 @@ if str(ROOT) not in sys.path:
 
 from siblingrestore.data import _read_rgb
 from siblingrestore.inference import restore_tiled
+from restore_util import restore_image_padded
 from train_cross_verifier import CrossVerifier
 
 DEGRADATIONS = ("blur", "haze", "inpainting", "lowlight", "noise", "rain", "snow")
@@ -76,8 +77,8 @@ def main() -> None:
     verifier.load_state_dict(checkpoint["model"]); verifier.to(device).eval()
     groups = {g["source_id"]: g for g in json.loads((ROOT / "data/plamd_sfr_v1/metadata/source_groups.json").read_text()) if g["split"] == "test"}
     source_ids = sorted(groups)
-    clean_images = {sid: _read_rgb(ROOT / groups[sid]["clean_path"]).unsqueeze(0) for sid in source_ids}
-    degraded = {d: {sid: _read_rgb(ROOT / groups[sid]["degraded"][d]).unsqueeze(0) for sid in source_ids} for d in DEGRADATIONS}
+    clean_images = {sid: _read_rgb(ROOT / "data/plamd_sfr_v1" / groups[sid]["clean_path"]).unsqueeze(0) for sid in source_ids}
+    degraded = {d: {sid: _read_rgb(ROOT / "data/plamd_sfr_v1" / groups[sid]["degraded"][d]).unsqueeze(0) for sid in source_ids} for d in DEGRADATIONS}
     restoration_models = {}
     for method, path in METHODS.items():
         if path is None: continue
@@ -93,7 +94,7 @@ def main() -> None:
             views = {d: {} for d in DEGRADATIONS}
             for d in DEGRADATIONS:
                 for sid in source_ids:
-                    views[d][sid] = restore_tiled(restoration_models[method], degraded[d][sid].to(device), 512, 32).cpu()
+                    views[d][sid] = restore_image_padded(restoration_models[method], degraded[d][sid].to(device), 512, 32).cpu()
         rows, verification = evaluate_views(verifier, source_ids, clean_images, views, device)
         for row in rows: row["method"] = method
         all_rows.extend(rows)

@@ -14,6 +14,7 @@ if str(ROOT) not in sys.path:
 from siblingrestore.data import _read_rgb
 from siblingrestore.inference import restore_tiled
 from siblingrestore.verifier import load_verifier_checkpoint
+from restore_util import restore_image_padded
 
 import numpy as np
 import matplotlib
@@ -70,15 +71,15 @@ def main():
     for group in groups:
         sid = group["source_id"]
         with torch.no_grad():
-            clean = _read_rgb(ROOT / group["clean_path"]).unsqueeze(0).to(device)
+            clean = _read_rgb(ROOT / "data/plamd_sfr_v1" / group["clean_path"]).unsqueeze(0).to(device)
             rows.append({"source_id": sid, "method": "clean", "degradation": "clean", "embedding": verifier.embed(clean).cpu().numpy()[0]})
             embeddings.append(rows[-1]["embedding"])
             for d in VIEW_DEGS:
-                degraded = _read_rgb(ROOT / group["degraded"][d]).unsqueeze(0).to(device)
+                degraded = _read_rgb(ROOT / "data/plamd_sfr_v1" / group["degraded"][d]).unsqueeze(0).to(device)
                 rows.append({"source_id": sid, "method": "degraded", "degradation": d, "embedding": verifier.embed(degraded).cpu().numpy()[0]})
                 embeddings.append(rows[-1]["embedding"])
                 for mname, model in models.items():
-                    restored = restore_tiled(model, degraded, 512, 32).cpu()
+                    restored = restore_image_padded(model, degraded, 512, 32).cpu()
                     rows.append({"source_id": sid, "method": mname, "degradation": d, "embedding": verifier.embed(restored.to(device)).cpu().numpy()[0]})
                     embeddings.append(rows[-1]["embedding"])
     matrix = np.stack(embeddings)
@@ -87,6 +88,8 @@ def main():
     coordinates = PCA(n_components=2, random_state=args.seed).fit_transform(matrix)
     for row, xy in zip(rows, coordinates):
         row["x"] = float(xy[0]); row["y"] = float(xy[1])
+    for row in rows:
+        row.pop("embedding", None)
     with (output / "embedding_2d.csv").open("w", encoding="utf-8", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=["source_id", "method", "degradation", "x", "y"])
         writer.writeheader(); writer.writerows(rows)

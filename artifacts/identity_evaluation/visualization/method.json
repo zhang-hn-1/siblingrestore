@@ -1,0 +1,7 @@
+{
+  "transform": "pca",
+  "fallback": "sklearn PCA (no UMAP dependency)",
+  "num_sources": 10,
+  "verifier": "/home/zhanghangning/siblingrestore-pilot-server/runs/campaigns/c001_sfr_v1/verifier_evaluator/best.pt",
+  "rows": 220
+}
