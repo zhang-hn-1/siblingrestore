@@ -80,15 +80,12 @@ def main():
     for method, rows in method_rows.items():
         for degradation in DEGRADATIONS:
             selected = [r for r in rows if r["degradation"] == degradation]
-            def add(key, name):
-                values = [float(r[key]) for r in selected]
-                mean, std, count = mean_std(values)
-                return mean, std, count
+            add = lambda key, _name: mean_std([float(r[key]) for r in selected])
             degraded_mean, degraded_std, count = add("input_own_anchor_cos", "degraded")
             restored_mean, restored_std, _ = add("restored_own_anchor_cos", "restored")
-            gain_mean, gain_std, _ = add("identity_gain_margin", "gain")
-            cosine_rows.append({"method": method, "degradation": degradation, "degraded_cosine": degraded_mean, "degraded_std": degraded_std, "restored_cosine": restored_mean, "restored_std": restored_std, "gain": gain_mean, "gain_std": gain_std, "num_samples": count})
-            gain_rows.append({"method": method, "degradation": degradation, "degraded_cosine": degraded_mean, "restored_cosine": restored_mean, "gain": gain_mean, "num_samples": count})
+            gain = restored_mean - degraded_mean
+            cosine_rows.append({"method": method, "degradation": degradation, "degraded_cosine": degraded_mean, "degraded_std": degraded_std, "restored_cosine": restored_mean, "restored_std": restored_std, "gain": gain, "num_samples": count})
+            gain_rows.append({"method": method, "degradation": degradation, "degraded_cosine": degraded_mean, "restored_cosine": restored_mean, "gain": gain, "num_samples": count})
 
     for filename, rows in (("identity_cosine_per_degradation.csv", cosine_rows), ("identity_recovery_gain.csv", gain_rows)):
         with (cosine_dir / filename).open("w", encoding="utf-8", newline="") as handle:
