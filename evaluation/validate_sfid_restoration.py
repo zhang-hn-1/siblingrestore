@@ -1,20 +1,18 @@
-"""Dataset-only SFID restoration validation: fog vs clear twin quality.
+"""Fast parallel SFID restoration-quality validation (dataset only, no detector).
 
-No detector, no FINet code. Uses SFID's internal paired fog/clear images:
-every fogged_*.jpg in the dataset has its clear original (verified 6859/6859).
-Restored outputs were exported beforehand by evaluation/export_sfid_restored.py.
-
-Metrics follow the project convention: masked PSNR/SSIM at native resolution
-(clean aligned to the degraded/restored size with Lanczos, PLAMD Method-B
-style) and AlexNet LPIPS at the 256x256 protocol.
+Phase 1: PSNR/SSIM per pair across methods using multiprocessing (CPU decode).
+Phase 2: LPIPS (AlexNet @256) streaming on GPU, reusing on-disk images.
+Outputs artifacts/sfid_detection/sfid_restoration_quality.{csv,json}
 """
 from __future__ import annotations
 
 import argparse
 import csv
 import json
+import multiprocessing as mp
 import statistics
 import sys
+import time
 from pathlib import Path
 
 import torch
@@ -25,7 +23,6 @@ if str(ROOT) not in sys.path:
 
 SFID = ROOT / "data/external/SFID_extracted/SFID"
 SFID_DET = ROOT / "data/external/sfid_detection"
-DEGRADED_DIR = SFID_DET / "Degraded/images"       # copies of fog jpg
 METHOD_DIRS = {
     "Fog (input)": SFID_DET / "Degraded/images",
     "A5": SFID_DET / "A5/images",
@@ -34,7 +31,7 @@ METHOD_DIRS = {
 }
 
 
-def load_rgb(path: Path):
+def _load_rgb(path: Path):
     from PIL import Image
     import numpy as np
     with Image.open(path) as image:
@@ -42,7 +39,7 @@ def load_rgb(path: Path):
     return torch.from_numpy(array).permute(2, 0, 1).float().div_(255.0)
 
 
-def lanczos_to(image: torch.Tensor, target_h: int, target_w: int) -> torch.Tensor:
+def _lanczos_to(image: torch.Tensor, target_h: int, target_w: int) -> torch.Tensor:
     from PIL import Image
     import numpy as np
     array = image.permute(1, 2, 0).mul(255.0).round().clamp_(0, 255).byte().numpy()
@@ -50,64 +47,85 @@ def lanczos_to(image: torch.Tensor, target_h: int, target_w: int) -> torch.Tenso
     return torch.from_numpy(np.asarray(pil, dtype=np.uint8).copy()).permute(2, 0, 1).float().div_(255.0)
 
 
+def _pair_metrics(args):
+    method, target_path, clear_path = args
+    from siblingrestore.metrics import psnr, ssim
+    restored = _load_rgb(Path(target_path))
+    reference = _load_rgb(Path(clear_path))
+    if reference.shape != restored.shape:
+        reference = _lanczos_to(reference, int(restored.shape[-2]), int(restored.shape[-1]))
+    mask = torch.ones((1, reference.shape[-2], reference.shape[-1]), dtype=torch.float32)
+    return method, float(psnr(restored, reference, mask)), float(ssim(restored, reference, mask))
+
+
 def main():
     parser = argparse.ArgumentParser()
+    parser.add_argument("--workers", type=int, default=8)
     parser.add_argument("--device", choices=("auto", "cpu", "cuda"), default="auto")
     parser.add_argument("--max-images", type=int, default=0)
     args = parser.parse_args()
-    device = "cuda" if args.device in ("auto", "cuda") and torch.cuda.is_available() else "cpu"
 
     train_clear = {p.stem: p for p in (SFID / "images/train").glob("*.jpg") if not p.name.startswith("fogged_")}
     test_clear = {p.stem: p for p in (SFID / "images/test").glob("*.jpg") if not p.name.startswith("fogged_")}
     fog_files = sorted((SFID / "images/test").glob("fogged_*.jpg"))
     if args.max_images:
         fog_files = fog_files[: args.max_images]
-    # locate clear twin (test first, then train)
-    pairs = []
-    for fog in fog_files:
-        base = fog.name[len("fogged_"):-4]
-        clear = test_clear.get(base) or train_clear.get(base)
-        if clear is not None:
-            pairs.append((fog, clear))
-    print(json.dumps({"device": device, "paired_images": len(pairs), "of": len(fog_files)}))
 
-    from siblingrestore.metrics import psnr, ssim
-    lpips_fn = None
-    try:
-        import lpips
-        lpips_fn = lpips.LPIPS(net="alex", verbose=False).to(device).eval()
-    except Exception as exc:
-        print(f"lpips unavailable: {exc}")
-
-    rows = []
+    tasks = []
     for method, method_dir in METHOD_DIRS.items():
-        per_image = {name: [] for name in ("psnr", "ssim", "lpips")}
-        for fog, clear in pairs:
+        for fog in fog_files:
+            base = fog.name[len("fogged_"):-4]
+            clear = test_clear.get(base) or train_clear.get(base)
+            if clear is None:
+                continue
+            target = method_dir / (fog.stem + (".png" if method != "Fog (input)" else ".jpg"))
+            if target.exists():
+                tasks.append((method, str(target), str(clear)))
+
+    start = time.time()
+    with mp.Pool(args.workers) as pool:
+        results = pool.map(_pair_metrics, tasks, chunksize=8)
+    print(json.dumps({"phase1_elapsed_seconds": round(time.time() - start), "pairs": len(results)}))
+
+    by_method = {}
+    for method, p, s in results:
+        by_method.setdefault(method, {"psnr": [], "ssim": []})
+        by_method[method]["psnr"].append(p)
+        by_method[method]["ssim"].append(s)
+
+    # Phase 2: LPIPS streaming on GPU.
+    device = "cuda" if args.device in ("auto", "cuda") and torch.cuda.is_available() else "cpu"
+    import lpips
+    lpips_model = lpips.LPIPS(net="alex", verbose=False).to(device).eval()
+    for method in by_method:
+        by_method[method]["lpips"] = []
+    for method, method_dir in METHOD_DIRS.items():
+        for fog in fog_files:
+            base = fog.name[len("fogged_"):-4]
+            clear = test_clear.get(base) or train_clear.get(base)
+            if clear is None:
+                continue
             target = method_dir / (fog.stem + (".png" if method != "Fog (input)" else ".jpg"))
             if not target.exists():
                 continue
-            restored = load_rgb(target)
-            reference = load_rgb(clear)
-            if reference.shape != restored.shape:
-                reference = lanczos_to(reference, int(restored.shape[-2]), int(restored.shape[-1]))
-            mask = torch.ones((1, reference.shape[-2], reference.shape[-1]), dtype=torch.float32)
-            per_image["psnr"].append(float(psnr(restored, reference, mask)))
-            per_image["ssim"].append(float(ssim(restored, reference, mask)))
-            if lpips_fn is not None:
-                with torch.no_grad():
-                    a = torch.nn.functional.interpolate(restored.unsqueeze(0), size=(256, 256), mode="bilinear", align_corners=False).to(device) * 2 - 1
-                    b = torch.nn.functional.interpolate(reference.unsqueeze(0), size=(256, 256), mode="bilinear", align_corners=False).to(device) * 2 - 1
-                    per_image["lpips"].append(float(lpips_fn(a, b)))
-        row = {"method": method, "num_images": len(per_image["psnr"])}
+            with torch.no_grad():
+                a = _lanczos_to(_load_rgb(target), 256, 256).unsqueeze(0) * 2 - 1
+                b = _lanczos_to(_load_rgb(clear), 256, 256).unsqueeze(0) * 2 - 1
+                value = float(lpips_model(a.to(device), b.to(device)))
+            by_method[method]["lpips"].append(value)
+    print(json.dumps({"phase2_elapsed_seconds": round(time.time() - start)}))
+
+    rows = []
+    for method, values in by_method.items():
+        row = {"method": method, "num_images": len(values["psnr"])}
         for name in ("psnr", "ssim", "lpips"):
-            values = per_image[name]
-            row[f"{name}_mean"] = statistics.mean(values) if values else None
-            row[f"{name}_std"] = statistics.stdev(values) if len(values) > 1 else None
+            v = values[name]
+            row[f"{name}_mean"] = statistics.mean(v) if v else None
+            row[f"{name}_std"] = statistics.stdev(v) if len(v) > 1 else None
         rows.append(row)
         print(json.dumps(row), flush=True)
 
     out = ROOT / "artifacts/sfid_detection"
-    out.mkdir(parents=True, exist_ok=True)
     with (out / "sfid_restoration_quality.csv").open("w", encoding="utf-8", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=list(rows[0]))
         writer.writeheader(); writer.writerows(rows)
