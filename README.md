@@ -50,6 +50,42 @@ python infer.py \
 
 完整实验数据见 [`EXPERIMENT_RESULTS_ALL.md`](EXPERIMENT_RESULTS_ALL.md)。
 
+## 论文正式分析产物
+
+本仓库还保存了当前正式 test 结果上的论文分析代码、源数据、表格和报告。以下分析均不重新训练模型、不修改 test split，也不覆盖已有实验结果。
+
+### Identity Preservation
+
+Identity Preservation 使用统一的 official frozen verifier，对 256 个 test sources 的 7 种 degradation views 进行 source-level 汇总，并生成 Table 3/Figure 6d 相关结果：
+
+```bash
+PYTHONPATH=. python analysis/identity_preservation/analyze_identity_preservation.py
+```
+
+结果位于 `results/identity_preservation/`，论文表格、图和审计报告位于 `artifacts/identity_preservation/`。
+
+### Source-level Statistical Significance（Table 7）
+
+Table 7 使用 source 作为独立统计单位：256 个 source、1792 个 views（256×7），执行 10,000 次、seed=13 的 paired source-level bootstrap。属于同一 source 的 7 个 degradation views 始终联合抽样，Ours 与 baseline 使用完全相同的 source 抽样索引。
+
+```bash
+PYTHONPATH=. python analysis/statistical_significance/analyze_statistical_significance.py
+```
+
+主比较为 Ours vs Restormer、DehazeFormer、PromptIR。PSNR、SSIM、LPIPS、Top1、AUC、EER、Cosine 和 Margin 的完整统计结果位于 `results/statistical_significance/`；Table 7、Supplementary 表和完整分析报告位于 `artifacts/statistical_significance/`。
+
+其中 AUC/EER 是 gallery-level verification metrics，不构造伪 source-level AUC/EER，而是在每个 bootstrap replicate 中重新计算 ROC-AUC 和 EER。`bootstrap_unit_diagnostic.csv` 中的 view-level bootstrap 仅用于伪重复诊断，不属于论文正式结果。
+
+当前 Table 7 的 source-level 结果摘要：
+
+| Comparison | PSNR Δ (95% CI) | LPIPS Δ (95% CI) | Top1 Δ (95% CI) | Margin Δ (95% CI) |
+|---|---:|---:|---:|---:|
+| Ours vs Restormer | +0.6860 [0.5923, 0.7794] | +0.0063 [0.0048, 0.0078] | +0.0419 [0.0240, 0.0592] | +0.0045 [0.0014, 0.0077] |
+| Ours vs DehazeFormer | +0.4188 [0.3182, 0.5218] | −0.0058 [−0.0077, −0.0039] | +0.0273 [0.0078, 0.0469] | +0.0050 [0.0014, 0.0086] |
+| Ours vs PromptIR | +1.2650 [1.1426, 1.3841] | +0.0146 [0.0127, 0.0163] | +0.0647 [0.0452, 0.0843] | +0.0056 [0.0022, 0.0092] |
+
+正的 Δ 始终表示 Ours 更好；LPIPS/EER 使用 baseline−Ours。DehazeFormer 的 LPIPS 为负，表示该 frozen test 结果中 DehazeFormer 的 LPIPS 更低。统计协议、aggregate sanity check、per-degradation 分析和 paper-safe conclusions 详见 [`artifacts/statistical_significance/STATISTICAL_SIGNIFICANCE_REPORT.md`](artifacts/statistical_significance/STATISTICAL_SIGNIFICANCE_REPORT.md)。
+
 ## 服务器安装与 smoke
 
 建议 Python 3.10+。先按服务器 CUDA 版本安装 PyTorch，再安装其余依赖：
@@ -127,4 +163,3 @@ python infer.py --checkpoint runs/pilot_sibling/best.pt \
 ## 早期 Pilot 说明
 
 本节中的 `pilot` 命令和 100-source 小规模数据仅用于复现实验管线与早期假设验证；当前项目的正式最佳模型和完整结果请以“当前最佳模型（SOTA）”章节、`EXPERIMENT_RESULTS_ALL.md` 以及 `plamd_sfr_v1` 结果文件为准。
-
