@@ -1,0 +1,5 @@
+metric,label,estimate,ci_low,ci_high,bootstrap_unit,n_sources,n_boot,seed
+spearman_rho,Spearman rho,0.2576986814455157,0.13494706585964386,0.37555595821773113,source_id,256,20000,20260907
+mean_delta_psnr,Mean delta PSNR,0.04192918550532315,-0.007023983294290767,0.08996359779323417,source_id,256,20000,20260907
+mean_delta_rank,Mean delta Rank,-0.008928571428571425,-0.45200892857142855,0.4129464285714285,source_id,256,20000,20260907
+joint_improvement_source_ratio,Joint-improvement source ratio,0.2890625,0.234375,0.34375,source_id,256,20000,20260907

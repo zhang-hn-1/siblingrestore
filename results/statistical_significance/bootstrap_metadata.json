@@ -1,0 +1,184 @@
+{
+  "bootstrap_unit": "source",
+  "independent_source_count": 256,
+  "views_per_source": 7,
+  "total_views": 1792,
+  "bootstrap_sample_size": 256,
+  "bootstrap_repetitions": 10000,
+  "bootstrap_sampling": "with_replacement",
+  "paired": true,
+  "seed": 13,
+  "ci_method": "percentile",
+  "confidence_level": 0.95,
+  "recomputed_per_bootstrap": {
+    "AUC": true,
+    "EER": true
+  },
+  "verifier_checkpoint": "/home/zhanghangning/siblingrestore-pilot-server/runs/campaigns/c001_sfr_v1/verifier_evaluator/best.pt",
+  "verifier_sha256": "d9b000aeb04d6e5dc64e6eff1fee7fc8c74e486935dd962fbcd1e26462451ae6",
+  "embedding_dim": 128,
+  "test_split": "test",
+  "degradations": [
+    "blur",
+    "haze",
+    "inpainting",
+    "lowlight",
+    "noise",
+    "rain",
+    "snow"
+  ],
+  "methods": [
+    "Ours",
+    "Restormer",
+    "DehazeFormer",
+    "PromptIR"
+  ],
+  "aggregate_sanity": {
+    "Ours": {
+      "method": "Ours",
+      "recomputed": {
+        "PSNR": 28.790507863360915,
+        "SSIM": 0.9457700604481423,
+        "LPIPS": 0.1433372255277001,
+        "Top1": 0.6981026785714286,
+        "AUC": 0.9749361646514074,
+        "EER": 0.07988773634453782
+      },
+      "official": {
+        "PSNR": 28.790507863360915,
+        "SSIM": 0.9457700604481423,
+        "LPIPS": 0.1433372255277001,
+        "Top1": 0.6981026785714286,
+        "AUC": 0.9749361548818746,
+        "EER": 0.07988773634453782
+      },
+      "absolute_difference": {
+        "PSNR": 0.0,
+        "SSIM": 0.0,
+        "LPIPS": 0.0,
+        "Top1": 0.0,
+        "AUC": 9.769532849368545e-09,
+        "EER": 0.0
+      },
+      "passed": true,
+      "tolerances": {
+        "PSNR": 0.005,
+        "SSIM": 0.0005,
+        "LPIPS": 0.0005,
+        "Top1": 0.002,
+        "AUC": 0.002,
+        "EER": 0.002
+      }
+    },
+    "Restormer": {
+      "method": "Restormer",
+      "recomputed": {
+        "PSNR": 28.10455210013269,
+        "SSIM": 0.943308229890785,
+        "LPIPS": 0.14961439062972204,
+        "Top1": 0.65625,
+        "AUC": 0.9701628234301534,
+        "EER": 0.09017528886554621
+      },
+      "official": {
+        "PSNR": 28.10455210013269,
+        "SSIM": 0.943308229890785,
+        "LPIPS": 0.14961439062972204,
+        "Top1": 0.65625,
+        "AUC": 0.9701628234301534,
+        "EER": 0.09017528886554621
+      },
+      "absolute_difference": {
+        "PSNR": 0.0,
+        "SSIM": 0.0,
+        "LPIPS": 0.0,
+        "Top1": 0.0,
+        "AUC": 0.0,
+        "EER": 0.0
+      },
+      "passed": true,
+      "tolerances": {
+        "PSNR": 0.005,
+        "SSIM": 0.0005,
+        "LPIPS": 0.0005,
+        "Top1": 0.002,
+        "AUC": 0.002,
+        "EER": 0.002
+      }
+    },
+    "DehazeFormer": {
+      "method": "DehazeFormer",
+      "recomputed": {
+        "PSNR": 28.37168088442346,
+        "SSIM": 0.9433459896328193,
+        "LPIPS": 0.1375604359600402,
+        "Top1": 0.6707589285714286,
+        "AUC": 0.9691912678157201,
+        "EER": 0.09418658088235293
+      },
+      "official": {
+        "PSNR": 28.37168088442346,
+        "SSIM": 0.9433459896328193,
+        "LPIPS": 0.1375604359600402,
+        "Top1": 0.6707589285714286,
+        "AUC": 0.9691912580461872,
+        "EER": 0.09418658088235293
+      },
+      "absolute_difference": {
+        "PSNR": 0.0,
+        "SSIM": 0.0,
+        "LPIPS": 0.0,
+        "Top1": 0.0,
+        "AUC": 9.769532849368545e-09,
+        "EER": 0.0
+      },
+      "passed": true,
+      "tolerances": {
+        "PSNR": 0.005,
+        "SSIM": 0.0005,
+        "LPIPS": 0.0005,
+        "Top1": 0.002,
+        "AUC": 0.002,
+        "EER": 0.002
+      }
+    },
+    "PromptIR": {
+      "method": "PromptIR",
+      "recomputed": {
+        "PSNR": 27.525529067921436,
+        "SSIM": 0.938064118498005,
+        "LPIPS": 0.15789028613549558,
+        "Top1": 0.6333705357142857,
+        "AUC": 0.9674084404269521,
+        "EER": 0.09438681722689077
+      },
+      "official": {
+        "PSNR": 27.525529067921436,
+        "SSIM": 0.938064118498005,
+        "LPIPS": 0.15789028613549558,
+        "Top1": 0.6333705357142857,
+        "AUC": 0.9674084306574192,
+        "EER": 0.09438681722689077
+      },
+      "absolute_difference": {
+        "PSNR": 0.0,
+        "SSIM": 0.0,
+        "LPIPS": 0.0,
+        "Top1": 0.0,
+        "AUC": 9.769532849368545e-09,
+        "EER": 0.0
+      },
+      "passed": true,
+      "tolerances": {
+        "PSNR": 0.005,
+        "SSIM": 0.0005,
+        "LPIPS": 0.0005,
+        "Top1": 0.002,
+        "AUC": 0.002,
+        "EER": 0.002
+      }
+    }
+  },
+  "protocol_issues": [],
+  "source_id_order_sha256": "891073ed8befde8945296d07818423316ea4c250887c4bc8367c7efe0515c657"
+}

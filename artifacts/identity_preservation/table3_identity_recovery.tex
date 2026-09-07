@@ -1,0 +1,19 @@
+% Auto-generated from results/identity_preservation/per_degradation_identity.csv
+\begin{table*}[t]
+\centering
+\caption{Per-degradation identity recovery on the PLAMD test split. Cosine is the similarity to the paired clean source in the shared 256-source gallery. Bold and underline mark the best and second restoration methods in each row; Degraded is reference-only.}
+\begin{tabular}{lrrrrrr}
+\toprule
+Degradation & Degraded Cosine$\uparrow$ & Restormer Cosine$\uparrow$ & DehazeFormer Cosine$\uparrow$ & PromptIR Cosine$\uparrow$ & Ours Cosine$\uparrow$ & Ours $\Delta$Cosine$\uparrow$ \\
+\midrule
+Blur & 0.9914 & \textbf{0.9943} & 0.9904 & 0.9927 & \underline{0.9928} & 0.0014 \\
+Haze & 0.7958 & 0.9230 & 0.9122 & \underline{0.9364} & \textbf{0.9366} & 0.1408 \\
+Inpainting & 0.9024 & \underline{0.9981} & \textbf{0.9992} & 0.9979 & 0.9978 & 0.0954 \\
+Low-light & 0.9217 & 0.9693 & \underline{0.9791} & 0.9590 & \textbf{0.9859} & 0.0642 \\
+Noise & 0.9689 & 0.9970 & \textbf{0.9980} & 0.9949 & \underline{0.9974} & 0.0285 \\
+Rain & 0.9904 & \underline{0.9952} & 0.9884 & 0.9944 & \textbf{0.9973} & 0.0069 \\
+Snow & 0.6165 & 0.9321 & \underline{0.9337} & 0.9193 & \textbf{0.9380} & 0.3215 \\
+Average & 0.8839 & \underline{0.9727} & 0.9716 & 0.9707 & \textbf{0.9780} & 0.0941 \\
+\bottomrule
+\end{tabular}
+\end{table*}

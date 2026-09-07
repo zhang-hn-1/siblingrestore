@@ -1,0 +1,18 @@
+grain,metric,outcome,label,count,percentage,n,estimate,ci_low,ci_high,delta_psnr,delta_rank,outlier_score
+per_view,quadrant,Q1,Joint improvement,176.0,9.821428571428571,1792,,,,,,
+per_view,quadrant,Q2,Identity-only improvement,104.0,5.803571428571429,1792,,,,,,
+per_view,quadrant,Q3,Both degraded,763.0,42.578125,1792,,,,,,
+per_view,quadrant,Q4,PSNR-only improvement,749.0,41.796875,1792,,,,,,
+per_source,quadrant,Q1,Joint improvement,74.0,28.90625,256,,,,,,
+per_source,quadrant,Q2,Identity-only improvement,39.0,15.234375,256,,,,,,
+per_source,quadrant,Q3,Both degraded,76.0,29.6875,256,,,,,,
+per_source,quadrant,Q4,PSNR-only improvement,67.0,26.171875,256,,,,,,
+per_source,bootstrap_statistic,spearman_rho,Spearman rho,,,256,0.2576986814455157,0.13494706585964386,0.37555595821773113,,,
+per_source,bootstrap_statistic,mean_delta_psnr,Mean delta PSNR,,,256,0.04192918550532315,-0.007023983294290767,0.08996359779323417,,,
+per_source,bootstrap_statistic,mean_delta_rank,Mean delta Rank,,,256,-0.008928571428571425,-0.45200892857142855,0.4129464285714285,,,
+per_source,bootstrap_statistic,joint_improvement_source_ratio,Joint-improvement source ratio,,,256,0.2890625,0.234375,0.34375,,,
+per_view,outlier,rank_1,vari-grip/rust/Fotos 23-10-2020_DJI_0043_vari_grip_760_8 / haze,,,1792,,,,-4.375645304619606,-148.0,1.4727026075644878
+per_view,outlier,rank_2,vari-grip/good/Fotos 16-12-2020_DJI_0404_vari_grip_450 / snow,,,1792,,,,-1.3114433983044407,-167.0,1.1757749533254362
+per_view,outlier,rank_3,vari-grip/good/Fotos 24-11-2020_DJI_0243_vari_grip_827 / blur,,,1792,,,,-6.999403634800849,-15.0,1.0279621416897997
+per_view,outlier,rank_4,vari-grip/good/Fotos 16-12-2020_DJI_0404_vari_grip_450 / lowlight,,,1792,,,,7.460923035356384,0.0,1.0
+per_view,outlier,rank_5,vari-grip/bird-nest/Fotos 25-11-2020_DJI_0563_vari_grip_841_2 / lowlight,,,1792,,,,-6.103746288221917,-22.0,0.9498318563439617

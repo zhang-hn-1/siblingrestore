@@ -1,0 +1,54 @@
+{
+  "selection_rule": "first row is the previously selected highest-A5-PSNR case; second row is an additional pre-selected fig2 source",
+  "same_input_and_gt_within_each_row": true,
+  "psnr_source": "/home/zhanghangning/siblingrestore-pilot-server/outputs/paper_figures_v1/unified_per_image.csv",
+  "cases": [
+    {
+      "source_id": "vari-grip/rust/Fotos 23-10-2020_DJI_0043_vari_grip_759",
+      "degradation": "lowlight",
+      "row_label": "Rust / low-light",
+      "roi_xyxy": [
+        158,
+        186,
+        330,
+        368
+      ],
+      "input_psnr_display_db": 12.201952914367338,
+      "method_psnr_db": {
+        "Input": 12.201952914367338,
+        "Restormer": 22.161609069295384,
+        "PromptIR": 21.306932140380766,
+        "DehazeFormer": 27.972414894578684,
+        "DFPIR": 28.643715550496434,
+        "Ours": 29.87195695043531,
+        "Reference": null
+      }
+    },
+    {
+      "source_id": "vari-grip/good/Fotos 10-12-2020_DJI_0258_vari_grip_282",
+      "degradation": "lowlight",
+      "row_label": "Good / low-light",
+      "roi_xyxy": [
+        300,
+        430,
+        650,
+        780
+      ],
+      "input_psnr_display_db": 14.331664992612216,
+      "method_psnr_db": {
+        "Input": 14.331664992612216,
+        "Restormer": 33.567408357915966,
+        "PromptIR": 30.45538971618761,
+        "DehazeFormer": 35.827381117274285,
+        "DFPIR": 32.62886053060087,
+        "Ours": 37.28438825285514,
+        "Reference": null
+      }
+    }
+  ],
+  "outputs": [
+    "/home/zhanghangning/siblingrestore-pilot-server/paper_assets/main/fig3_visual_comparison.png",
+    "/home/zhanghangning/siblingrestore-pilot-server/paper_assets/main/fig3_visual_comparison.pdf",
+    "/home/zhanghangning/siblingrestore-pilot-server/paper_assets/main/fig3_visual_comparison.svg"
+  ]
+}

@@ -1,0 +1,171 @@
+{
+  "verifier_checkpoint": "/home/zhanghangning/siblingrestore-pilot-server/runs/campaigns/c001_sfr_v1/verifier_evaluator/best.pt",
+  "checkpoint_sha256": "d9b000aeb04d6e5dc64e6eff1fee7fc8c74e486935dd962fbcd1e26462451ae6",
+  "embedding_dim": 128,
+  "test_split": "test",
+  "test_source_count": 256,
+  "gallery_source_count": 256,
+  "degradation_count": 7,
+  "degradations": [
+    "blur",
+    "haze",
+    "inpainting",
+    "lowlight",
+    "noise",
+    "rain",
+    "snow"
+  ],
+  "preprocessing": {
+    "input_range": "RGB float32 [0,1]",
+    "verifier_input": "official evaluate_frozen_verifier_v2 verifier_embed_tiled",
+    "tile_size": 512,
+    "tile_overlap": 32,
+    "noise": "clean Lanczos alignment to noise native size per Method B protocol"
+  },
+  "normalization": "verifier.embed output is L2-normalized; score is dot product cosine",
+  "distance_metric": "cosine similarity / dot product of L2-normalized embeddings",
+  "negative_mining_strategy": "hardest negative = max similarity over all wrong clean gallery sources",
+  "bootstrap_seed": 13,
+  "bootstrap_samples": 2000,
+  "methods": [
+    "Degraded",
+    "Restormer",
+    "DehazeFormer",
+    "PromptIR",
+    "Ours",
+    "DFPIR",
+    "FFANet",
+    "Uformer"
+  ],
+  "verifier_fingerprints_by_method": {
+    "Degraded": {
+      "verifier_sha256": "d9b000aeb04d6e5dc64e6eff1fee7fc8c74e486935dd962fbcd1e26462451ae6",
+      "verifier_path": "runs/campaigns/c001_sfr_v1/verifier_evaluator/best.pt",
+      "embedding_dim": 128,
+      "eval_version": "v2",
+      "split": "test",
+      "tile_size": 512,
+      "tile_overlap": 32,
+      "data_pkg_fingerprint": {
+        "audit_index_sha256": "a4b095234bc8b84b0767b317b1fcb1e312f059357d0989e20e8627c3777af1db",
+        "audit_groups_sha256": "990880d4c2a628991b6bae1b359001829145359f92eca2c4ed60680dd2eef437"
+      }
+    },
+    "Restormer": {
+      "verifier_sha256": "d9b000aeb04d6e5dc64e6eff1fee7fc8c74e486935dd962fbcd1e26462451ae6",
+      "verifier_path": "runs/campaigns/c001_sfr_v1/verifier_evaluator/best.pt",
+      "embedding_dim": 128,
+      "eval_version": "v2",
+      "split": "test",
+      "tile_size": 512,
+      "tile_overlap": 32,
+      "data_pkg_fingerprint": {
+        "audit_index_sha256": "a4b095234bc8b84b0767b317b1fcb1e312f059357d0989e20e8627c3777af1db",
+        "audit_groups_sha256": "990880d4c2a628991b6bae1b359001829145359f92eca2c4ed60680dd2eef437"
+      }
+    },
+    "DehazeFormer": {
+      "verifier_sha256": "d9b000aeb04d6e5dc64e6eff1fee7fc8c74e486935dd962fbcd1e26462451ae6",
+      "verifier_path": "runs/campaigns/c001_sfr_v1/verifier_evaluator/best.pt",
+      "embedding_dim": 128,
+      "eval_version": "v2",
+      "split": "test",
+      "tile_size": 512,
+      "tile_overlap": 32,
+      "data_pkg_fingerprint": {
+        "audit_index_sha256": "a4b095234bc8b84b0767b317b1fcb1e312f059357d0989e20e8627c3777af1db",
+        "audit_groups_sha256": "990880d4c2a628991b6bae1b359001829145359f92eca2c4ed60680dd2eef437"
+      }
+    },
+    "PromptIR": {
+      "verifier_sha256": "d9b000aeb04d6e5dc64e6eff1fee7fc8c74e486935dd962fbcd1e26462451ae6",
+      "verifier_path": "runs/campaigns/c001_sfr_v1/verifier_evaluator/best.pt",
+      "embedding_dim": 128,
+      "eval_version": "v2",
+      "split": "test",
+      "tile_size": 512,
+      "tile_overlap": 32,
+      "data_pkg_fingerprint": {
+        "audit_index_sha256": "a4b095234bc8b84b0767b317b1fcb1e312f059357d0989e20e8627c3777af1db",
+        "audit_groups_sha256": "990880d4c2a628991b6bae1b359001829145359f92eca2c4ed60680dd2eef437"
+      }
+    },
+    "Ours": {
+      "verifier_sha256": "d9b000aeb04d6e5dc64e6eff1fee7fc8c74e486935dd962fbcd1e26462451ae6",
+      "verifier_path": "runs/campaigns/c001_sfr_v1/verifier_evaluator/best.pt",
+      "embedding_dim": 128,
+      "eval_version": "v2",
+      "split": "test",
+      "tile_size": 512,
+      "tile_overlap": 32,
+      "data_pkg_fingerprint": {
+        "audit_index_sha256": "a4b095234bc8b84b0767b317b1fcb1e312f059357d0989e20e8627c3777af1db",
+        "audit_groups_sha256": "990880d4c2a628991b6bae1b359001829145359f92eca2c4ed60680dd2eef437"
+      }
+    },
+    "DFPIR": {
+      "verifier_sha256": "d9b000aeb04d6e5dc64e6eff1fee7fc8c74e486935dd962fbcd1e26462451ae6",
+      "verifier_path": "runs/campaigns/c001_sfr_v1/verifier_evaluator/best.pt",
+      "embedding_dim": 128,
+      "eval_version": "v2",
+      "split": "test",
+      "tile_size": 512,
+      "tile_overlap": 32,
+      "data_pkg_fingerprint": {
+        "audit_index_sha256": "a4b095234bc8b84b0767b317b1fcb1e312f059357d0989e20e8627c3777af1db",
+        "audit_groups_sha256": "990880d4c2a628991b6bae1b359001829145359f92eca2c4ed60680dd2eef437"
+      }
+    },
+    "FFANet": {
+      "verifier_sha256": "d9b000aeb04d6e5dc64e6eff1fee7fc8c74e486935dd962fbcd1e26462451ae6",
+      "verifier_path": "runs/campaigns/c001_sfr_v1/verifier_evaluator/best.pt",
+      "embedding_dim": 128,
+      "eval_version": "v2",
+      "split": "test",
+      "tile_size": 512,
+      "tile_overlap": 32,
+      "data_pkg_fingerprint": {
+        "audit_index_sha256": "a4b095234bc8b84b0767b317b1fcb1e312f059357d0989e20e8627c3777af1db",
+        "audit_groups_sha256": "990880d4c2a628991b6bae1b359001829145359f92eca2c4ed60680dd2eef437"
+      }
+    },
+    "Uformer": {
+      "verifier_sha256": "d9b000aeb04d6e5dc64e6eff1fee7fc8c74e486935dd962fbcd1e26462451ae6",
+      "verifier_path": "runs/campaigns/c001_sfr_v1/verifier_evaluator/best.pt",
+      "embedding_dim": 128,
+      "eval_version": "v2",
+      "split": "test",
+      "tile_size": 512,
+      "tile_overlap": 32,
+      "data_pkg_fingerprint": {
+        "audit_index_sha256": "a4b095234bc8b84b0767b317b1fcb1e312f059357d0989e20e8627c3777af1db",
+        "audit_groups_sha256": "990880d4c2a628991b6bae1b359001829145359f92eca2c4ed60680dd2eef437"
+      }
+    }
+  },
+  "data_audit": {
+    "index_sha256": "a4b095234bc8b84b0767b317b1fcb1e312f059357d0989e20e8627c3777af1db",
+    "groups_sha256": "990880d4c2a628991b6bae1b359001829145359f92eca2c4ed60680dd2eef437",
+    "source_audit_status": "PASS"
+  },
+  "aggregate_sanity_check": {
+    "recomputed": {
+      "top1": 0.6981026785714286,
+      "auc": 0.9749361646514074,
+      "eer": 0.07988773634453782
+    },
+    "official": {
+      "top1": 0.6981026785714286,
+      "auc": 0.9749361548818746,
+      "eer": 0.07988773634453782
+    },
+    "absolute_difference": {
+      "top1": 0.0,
+      "auc": 9.769532849368545e-09,
+      "eer": 0.0
+    },
+    "passed": true,
+    "tolerance": 0.005
+  },
+  "protocol_issues": []
+}

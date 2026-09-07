@@ -1,0 +1,122 @@
+[
+  {
+    "model": "ours_dim48_anchor",
+    "params_M": 2.63,
+    "macs_G": 25.52,
+    "latency_ms": 46.42,
+    "peak_vram_GB": 0.2,
+    "throughput_ips": 21.54
+  },
+  {
+    "model": "dehazeformer",
+    "params_M": 25.45,
+    "macs_G": 275.15,
+    "latency_ms": 79.12,
+    "peak_vram_GB": 0.37,
+    "throughput_ips": 12.64
+  },
+  {
+    "model": "ours_dim64_anchor",
+    "params_M": 4.63,
+    "macs_G": 44.69,
+    "latency_ms": 62.86,
+    "peak_vram_GB": 0.26,
+    "throughput_ips": 15.91
+  },
+  {
+    "model": "restormer",
+    "params_M": 26.13,
+    "macs_G": 140.99,
+    "latency_ms": 84.66,
+    "peak_vram_GB": 0.66,
+    "throughput_ips": 11.81
+  },
+  {
+    "model": "promptir",
+    "params_M": 35.59,
+    "macs_G": 158.14,
+    "latency_ms": 91.64,
+    "peak_vram_GB": 0.7,
+    "throughput_ips": 10.91
+  },
+  {
+    "model": "dfpir",
+    "params_M": 26.13,
+    "macs_G": 140.99,
+    "latency_ms": 84.67,
+    "peak_vram_GB": 0.66,
+    "throughput_ips": 11.81
+  },
+  {
+    "model": "ffanet",
+    "params_M": 1.06,
+    "macs_G": 68.38,
+    "latency_ms": 12.43,
+    "peak_vram_GB": 0.12,
+    "throughput_ips": 80.44
+  },
+  {
+    "model": "r2r",
+    "params_M": 30.92,
+    "macs_G": 16.65,
+    "latency_ms": 28.83,
+    "peak_vram_GB": 0.19,
+    "throughput_ips": 34.69
+  },
+  {
+    "model": "uformer",
+    "params_M": 20.63,
+    "macs_G": 41.09,
+    "latency_ms": 38.44,
+    "peak_vram_GB": 0.57,
+    "throughput_ips": 26.02
+  },
+  {
+    "model": "airnet",
+    "params_M": 8.93,
+    "macs_G": 301.27,
+    "latency_ms": 167.45,
+    "peak_vram_GB": 0.55,
+    "throughput_ips": 5.97
+  },
+  {
+    "model": "swinir",
+    "params_M": 3.14,
+    "macs_G": 204.53,
+    "latency_ms": 145.99,
+    "peak_vram_GB": 0.86,
+    "throughput_ips": 6.85
+  },
+  {
+    "model": "prenet",
+    "params_M": 0.46,
+    "macs_G": 30.31,
+    "latency_ms": 4.32,
+    "peak_vram_GB": 0.3,
+    "throughput_ips": 231.36
+  },
+  {
+    "model": "transweather",
+    "params_M": 38.05,
+    "macs_G": 6.13,
+    "latency_ms": 9.93,
+    "peak_vram_GB": 0.18,
+    "throughput_ips": 100.72
+  },
+  {
+    "model": "clearair",
+    "params_M": 32.21,
+    "macs_G": 134.99,
+    "latency_ms": 81.17,
+    "peak_vram_GB": 0.68,
+    "throughput_ips": 12.32
+  },
+  {
+    "model": "grl",
+    "params_M": 5.11,
+    "macs_G": 316.39,
+    "latency_ms": 838.44,
+    "peak_vram_GB": 0.6,
+    "throughput_ips": 1.19
+  }
+]

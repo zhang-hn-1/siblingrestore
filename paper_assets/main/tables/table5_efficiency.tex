@@ -1,0 +1,17 @@
+% Auto-generated from frozen repository artifacts.
+\begin{table*}[t]
+\centering
+\caption{Efficiency comparison under the recorded 256 x 256 batch-1 fp32 V100 protocol. Ours uses the A5 quality row and the recorded dim-48 anchor efficiency measurement.}
+\begin{tabular}{lrrrrrr}
+\toprule
+Method & Params(M) & MACs(G) & Latency(ms) & VRAM(GB) & Throughput(ips) & PSNR \\
+\midrule
+Ours & 2.6300 & 25.5200 & 46.4200 & 0.2000 & 21.5400 & 28.7905 \\
+Restormer & 26.1300 & 140.9900 & 84.6600 & 0.6600 & 11.8100 & 28.1046 \\
+PromptIR & 35.5900 & 158.1400 & 91.6400 & 0.7000 & 10.9100 & 27.5255 \\
+DehazeFormer & 25.4500 & 275.1500 & 79.1200 & 0.3700 & 12.6400 & 28.3717 \\
+SwinIR & 3.1400 & 204.5300 & 145.9900 & 0.8600 & 6.8500 & 24.7790 \\
+AirNet & 8.9300 & 301.2700 & 167.4500 & 0.5500 & 5.9700 & 24.7851 \\
+\bottomrule
+\end{tabular}
+\end{table*}

@@ -1,0 +1,45 @@
+{
+  "font_requested": "Times New Roman",
+  "font_fallback": [
+    "Nimbus Roman",
+    "Liberation Serif"
+  ],
+  "background": "white",
+  "dpi": 300,
+  "vector_formats": [
+    "pdf",
+    "svg"
+  ],
+  "method_colors": {
+    "Ours": "#B45F06",
+    "Restormer": "#4C78A8",
+    "DehazeFormer": "#72B7B2",
+    "PromptIR": "#9C87C5",
+    "DFPIR": "#D9826B",
+    "AirNet": "#6F8F72",
+    "SwinIR": "#7F9CCB"
+  },
+  "degradation_colors": {
+    "blur": "#4C78A8",
+    "haze": "#72B7B2",
+    "inpainting": "#E6A24A",
+    "lowlight": "#9C87C5",
+    "noise": "#D9826B",
+    "rain": "#6F8F72",
+    "snow": "#7F9CCB"
+  },
+  "method_labels": {
+    "A5": "Ours",
+    "ours_dim48_anchor": "Ours",
+    "restormer": "Restormer",
+    "promptir": "PromptIR",
+    "dehazeformer": "DehazeFormer",
+    "dfpir": "DFPIR",
+    "airnet": "AirNet",
+    "swinir": "SwinIR",
+    "ffanet": "FFANet",
+    "r2r": "R2R",
+    "uformer": "Uformer"
+  },
+  "notes": "No gradients, glow, 3D, or decorative shadows."
+}

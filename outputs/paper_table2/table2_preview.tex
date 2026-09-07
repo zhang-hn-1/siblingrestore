@@ -1,0 +1,83 @@
+\documentclass[10pt]{article}
+\usepackage[paperwidth=210mm,paperheight=297mm,left=3mm,right=3mm,top=2mm,bottom=3mm]{geometry}
+\usepackage{newtxtext,newtxmath}
+\usepackage[T1]{fontenc}
+\usepackage{booktabs}
+\usepackage[table]{xcolor}
+\usepackage{array}
+\usepackage{graphicx}
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\setlength{\arrayrulewidth}{0.35pt}
+\renewcommand{\arraystretch}{1.08}
+
+\begin{document}
+
+% ---- Table 2: complete comparison of quality, identity, and efficiency ----
+\providecommand{\PTbest}[1]{\color{PTbest}\bfseries #1}
+\providecommand{\PTsecond}[1]{\color{PTsecond}#1}
+\definecolor{PTbest}{RGB}{198,12,12}
+\definecolor{PTsecond}{RGB}{0,80,190}
+\newcommand{\NA}{--}
+
+\begingroup
+\scriptsize
+\setlength{\tabcolsep}{1.4pt}
+\hrule
+\vspace{2pt}
+\noindent\raggedright
+\textbf{Table 2.} \textbf{[All-in-one]} Complete comparison of restoration quality, source-identity recognition, and lightweight efficiency on the PLAMD test set.
+The identity gallery contains 256 clean sources. Red and blue indicate the best and second-best values among the restored methods; lower is better for LPIPS, EER, Params, MACs, latency, and peak VRAM.
+\par\vspace{3pt}
+\noindent\centering
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{@{}l|l|ccc|ccccc|ccccc@{}}
+\hline
+\multicolumn{2}{c|}{\textbf{Method / cohort}} &
+\multicolumn{3}{c|}{\textbf{Restoration quality}} &
+\multicolumn{5}{c|}{\textbf{Identity recognition}} &
+\multicolumn{5}{c}{\textbf{Lightweight / efficiency}}\\
+\multicolumn{1}{c|}{\textbf{Method}} &
+\multicolumn{1}{c|}{\textbf{Cohort}} &
+\multicolumn{1}{c|}{PSNR $\uparrow$} &
+\multicolumn{1}{c|}{SSIM $\uparrow$} &
+\multicolumn{1}{c|}{LPIPS $\downarrow$} &
+\multicolumn{1}{c|}{Top-1 $\uparrow$} &
+\multicolumn{1}{c|}{Top-5 $\uparrow$} &
+\multicolumn{1}{c|}{SameCat Top-1 $\uparrow$} &
+\multicolumn{1}{c|}{EER $\downarrow$} &
+\multicolumn{1}{c|}{AUC $\uparrow$} &
+\multicolumn{1}{c|}{Params (M) $\downarrow$} &
+\multicolumn{1}{c|}{MACs (G) $\downarrow$} &
+\multicolumn{1}{c|}{Latency (ms) $\downarrow$} &
+\multicolumn{1}{c|}{VRAM (GB) $\downarrow$} &
+\multicolumn{1}{c}{Throughput $\uparrow$}\\
+\hline
+Degraded input & all & \NA & \NA & \NA & 0.3030 & 0.5106 & 0.3622 & 0.1687 & 0.9077 & \NA & \NA & \NA & \NA & \NA\\
+\hline
+\textbf{A5 (Ours)} & ablation\_core & \PTbest{28.7905} & \PTbest{0.9458} & \PTsecond{0.1433} & \PTbest{0.6981} & \PTbest{0.8605} & \PTbest{0.7344} & \PTbest{0.0799} & \PTbest{0.9749} & 2.63 & 25.52 & 46.42 & 0.20 & 21.54\\
+dehazeformer & c005 & \PTsecond{28.3717} & \PTsecond{0.9433} & \PTbest{0.1376} & \PTsecond{0.6708} & \PTsecond{0.8354} & \PTsecond{0.7193} & 0.0942 & 0.9692 & 25.45 & 275.15 & 79.12 & 0.37 & 12.64\\
+restormer & c005 & 28.1046 & 0.9433 & 0.1496 & 0.6562 & 0.8382 & 0.7098 & \PTsecond{0.0902} & \PTsecond{0.9702} & 26.13 & 140.99 & 84.66 & 0.66 & 11.81\\
+promptir & c005 & 27.5255 & 0.9381 & 0.1579 & 0.6334 & 0.8276 & 0.6858 & 0.0944 & 0.9674 & 35.59 & 158.14 & 91.64 & 0.70 & 10.91\\
+airnet & c005 & 24.7851 & 0.8793 & 0.2064 & 0.4442 & 0.6708 & 0.5017 & 0.1357 & 0.9395 & 8.93 & 301.27 & 167.45 & 0.55 & 5.97\\
+clearair & c005 & 21.0695 & 0.8360 & 0.2876 & 0.2584 & 0.4860 & 0.3131 & 0.1896 & 0.8917 & 32.21 & 134.99 & 81.17 & 0.68 & 12.32\\
+dfpir & c005 & 27.2762 & 0.9323 & 0.1717 & 0.5954 & 0.7896 & 0.6445 & 0.0998 & 0.9625 & 26.13 & 140.99 & 84.67 & 0.66 & 11.81\\
+ffanet & c005 & 26.6121 & 0.9206 & 0.2058 & 0.5301 & 0.7718 & 0.5993 & 0.1082 & 0.9557 & \PTsecond{1.06} & 68.38 & 12.43 & \PTbest{0.12} & 80.44\\
+grl & c005 & 20.4327 & 0.7615 & 0.3502 & 0.3092 & 0.5134 & 0.3605 & 0.1678 & 0.9091 & 5.11 & 316.39 & 838.44 & 0.60 & 1.19\\
+prenet & c005 & 24.3834 & 0.8733 & 0.2360 & 0.3711 & 0.5938 & 0.4369 & 0.1660 & 0.9132 & \PTbest{0.46} & 30.31 & \PTbest{4.32} & 0.30 & \PTbest{231.36}\\
+r2r & c005 & 26.1536 & 0.9176 & 0.2359 & 0.5519 & 0.7589 & 0.6071 & 0.1117 & 0.9554 & 30.92 & \PTsecond{16.65} & 28.83 & 0.19 & 34.69\\
+swinir & c005 & 24.7790 & 0.8850 & 0.2310 & 0.3912 & 0.6138 & 0.4453 & 0.1591 & 0.9194 & 3.14 & 204.53 & 145.99 & 0.86 & 6.85\\
+transweather & c005 & 23.7907 & 0.8781 & 0.2745 & 0.3181 & 0.5809 & 0.3956 & 0.1522 & 0.9254 & 38.05 & \PTbest{6.13} & \PTsecond{9.93} & \PTsecond{0.18} & \PTsecond{100.72}\\
+uformer & c005 & 25.6141 & 0.9097 & 0.2153 & 0.4883 & 0.6775 & 0.5469 & 0.1383 & 0.9366 & 20.63 & 41.09 & 38.44 & 0.57 & 26.02\\
+\hline
+\end{tabular}%
+}
+
+\vspace{4pt}
+\noindent\raggedright\scriptsize
+Identity metrics are from the official frozen-verifier aggregate on the same 256-source clean gallery.
+Efficiency metrics are measured at the project benchmark input size; A5 uses the corresponding dim-48 anchored architecture record from \texttt{efficiency\_records.csv}.
+The two standalone dim-variant rows are intentionally omitted as requested; their A5-equivalent efficiency record is not duplicated as a separate method.
+\endgroup
+
+\end{document}
