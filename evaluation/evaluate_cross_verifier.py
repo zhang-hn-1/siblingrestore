@@ -14,6 +14,7 @@ if str(ROOT) not in sys.path:
 
 from siblingrestore.data import _read_rgb
 from siblingrestore.inference import restore_tiled
+from embed_util import embed_tiled
 from restore_util import restore_image_padded
 from train_cross_verifier import CrossVerifier
 
@@ -51,12 +52,12 @@ def eer(scores, labels):
 
 
 def evaluate_views(verifier, source_ids, clean_images, views, device):
-    anchors = torch.cat([verifier.embed(clean_images[sid].to(device)) for sid in source_ids])
+    anchors = torch.cat([embed_tiled(verifier, clean_images[sid].to(device)) for sid in source_ids])
     rows, scores, labels = [], [], []
     for sid in source_ids:
         own_index = source_ids.index(sid)
         for degradation in DEGRADATIONS:
-            embedding = verifier.embed(views[degradation][sid].to(device))
+            embedding = embed_tiled(verifier, views[degradation][sid].to(device))
             cosine = (embedding @ anchors.T).squeeze(0)
             rows.append({"source_id": sid, "degradation": degradation, "own_cosine": float(cosine[own_index]), "top1": int(int(cosine.argmax()) == own_index)})
             scores.extend(float(value) for value in cosine)

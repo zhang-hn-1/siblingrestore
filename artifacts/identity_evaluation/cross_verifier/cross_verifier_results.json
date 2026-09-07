@@ -1,0 +1,38 @@
+{
+  "checkpoint": "artifacts/identity_evaluation/cross_verifier/cross_verifier_resnet18.pt",
+  "test_sources": 256,
+  "results": [
+    {
+      "method": "Degraded",
+      "cosine": 0.9436871596512252,
+      "top1": 0.9296875,
+      "roc_auc": 0.9915532045337666,
+      "eer": 0.03718487394957983,
+      "num_views": 1792
+    },
+    {
+      "method": "Restormer",
+      "cosine": 0.9662595014254164,
+      "top1": 0.9620535714285714,
+      "roc_auc": 0.9962486300672613,
+      "eer": 0.02299544817927171,
+      "num_views": 1792
+    },
+    {
+      "method": "DehazeFormer",
+      "cosine": 0.971588862045402,
+      "top1": 0.9737723214285714,
+      "roc_auc": 0.9975971260086066,
+      "eer": 0.017323179271708684,
+      "num_views": 1792
+    },
+    {
+      "method": "A5",
+      "cosine": 0.9705078064164679,
+      "top1": 0.9654017857142857,
+      "roc_auc": 0.9972462788826468,
+      "eer": 0.017069327731092435,
+      "num_views": 1792
+    }
+  ]
+}
