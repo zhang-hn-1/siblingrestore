@@ -1,0 +1,15 @@
+% Table 3 ablation (auto-generated)
+\begin{table}[t]
+\centering
+\caption{Core ablation on the 2$\times$2 design (Deg $\times$ Anchor). Sampling: sibling grouping (2 same-source degraded views per group). All models share the same dim-48 backbone, crop 256, seed 13, 20k steps (mode=sibling). Bold=best, underline=second.}
+\begin{tabular}{llcccccc}
+\toprule
+Config & Enabled losses & PSNR$\uparrow$ & SSIM$\uparrow$ & LPIPS$\downarrow$ & Top-1$\uparrow$ & EER$\downarrow$ & AUC$\uparrow$\\
+\midrule
+A0 & rec+grad & 28.44 & 0.9428 & 0.1563 & 0.6462 & 0.0842 & 0.9710 \\
+B1 & rec+grad+$L_{\mathrm{deg}}$ & \underline{28.75} & \textbf{0.9464} & \underline{0.1464} & \underline{0.6735} & \underline{0.0804} & \underline{0.9745} \\
+B2 & rec+grad+$L_{\mathrm{anc}}$ & 27.91 & 0.9389 & 0.1637 & 0.6434 & 0.0884 & 0.9701 \\
+A5 & rec+grad+$L_{\mathrm{deg}}$+$L_{\mathrm{anc}}$ & \textbf{28.79} & \underline{0.9458} & \textbf{0.1433} & \textbf{0.6981} & \textbf{0.0799} & \textbf{0.9749} \\
+\bottomrule
+\end{tabular}
+\end{table}

@@ -1,0 +1,2 @@
+degradation,n_sources,both_improved,only_psnr_improved,only_rank_improved,rank_unchanged,both_worse,mixed_other,mean_dpsnr,mean_drank
+all,256,74,27,0,16,60,79,0.04192918550532315,-0.008928571428571425

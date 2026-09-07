@@ -1,0 +1,19 @@
+role,source_id,degradation,reason
+fig2,vari-grip/good/Fotos 22-10-2020_DJI_0880_vari_grip_734,blur,fig2_mosaic
+fig2,vari-grip/good/Fotos 22-10-2020_DJI_0880_vari_grip_734,haze,fig2_mosaic
+fig2,vari-grip/good/Fotos 22-10-2020_DJI_0880_vari_grip_734,inpainting,fig2_mosaic
+fig2,vari-grip/good/Fotos 22-10-2020_DJI_0880_vari_grip_734,lowlight,fig2_mosaic
+fig2,vari-grip/good/Fotos 22-10-2020_DJI_0880_vari_grip_734,noise,fig2_mosaic
+fig2,vari-grip/good/Fotos 22-10-2020_DJI_0880_vari_grip_734,rain,fig2_mosaic
+fig2,vari-grip/good/Fotos 22-10-2020_DJI_0880_vari_grip_734,snow,fig2_mosaic
+fig2,vari-grip/bird-nest/Fotos 25-11-2020_DJI_0586_vari_grip_845_8,blur,fig2_mosaic
+fig2,vari-grip/bird-nest/Fotos 25-11-2020_DJI_0586_vari_grip_845_8,haze,fig2_mosaic
+fig2,vari-grip/bird-nest/Fotos 25-11-2020_DJI_0586_vari_grip_845_8,inpainting,fig2_mosaic
+fig2,vari-grip/bird-nest/Fotos 25-11-2020_DJI_0586_vari_grip_845_8,lowlight,fig2_mosaic
+fig2,vari-grip/bird-nest/Fotos 25-11-2020_DJI_0586_vari_grip_845_8,noise,fig2_mosaic
+fig2,vari-grip/bird-nest/Fotos 25-11-2020_DJI_0586_vari_grip_845_8,rain,fig2_mosaic
+fig2,vari-grip/bird-nest/Fotos 25-11-2020_DJI_0586_vari_grip_845_8,snow,fig2_mosaic
+fig3_improvement,vari-grip/rust/11-06-2021_DJI_0479_11_6,haze,improve
+fig3_regression,vari-grip/rust/Fotos 23-10-2020_DJI_0043_vari_grip_759,lowlight,regression
+fig3_unchanged,vari-grip/rust/Fotos 23-10-2020_DJI_0047_vari_grip_764_5,noise,unchanged
+fig5,vari-grip/rust/Fotos 23-10-2020_DJI_0032_vari_grip_750,haze,local detail

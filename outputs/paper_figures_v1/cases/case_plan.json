@@ -1,0 +1,94 @@
+{
+  "fig2_sources": [
+    {
+      "source_id": "vari-grip/good/Fotos 22-10-2020_DJI_0880_vari_grip_734",
+      "category": "good",
+      "degradations": [
+        "blur",
+        "haze",
+        "inpainting",
+        "lowlight",
+        "noise",
+        "rain",
+        "snow"
+      ],
+      "role": "fig2_mosaic"
+    },
+    {
+      "source_id": "vari-grip/bird-nest/Fotos 25-11-2020_DJI_0586_vari_grip_845_8",
+      "category": "bird-nest",
+      "degradations": [
+        "blur",
+        "haze",
+        "inpainting",
+        "lowlight",
+        "noise",
+        "rain",
+        "snow"
+      ],
+      "role": "fig2_mosaic"
+    }
+  ],
+  "fig3_cases": [
+    {
+      "source_id": "vari-grip/rust/11-06-2021_DJI_0479_11_6",
+      "degradation": "haze",
+      "role": "improvement",
+      "reason": "B1 检索错误且 A5 恢复为正确 Top-1（haze/snow/lowlight，psnr 不降）",
+      "category": "rust",
+      "psnr_a5": 21.58434367197833,
+      "psnr_b1": 20.32023713435392,
+      "rank_a5": 1,
+      "rank_b1": 35,
+      "cos_own_a5": 0.98758465051651,
+      "cos_own_b1": 0.8901765942573547,
+      "retrieved_a5": "vari-grip/rust/11-06-2021_DJI_0479_11_6",
+      "retrieved_b1": "vari-grip/rust/10-06-2021_DJI_0018_611_7"
+    },
+    {
+      "source_id": "vari-grip/rust/Fotos 23-10-2020_DJI_0043_vari_grip_759",
+      "degradation": "lowlight",
+      "role": "regression",
+      "reason": "B1 正确而 A5 检索错误，且 A5 PSNR 未低于 B1（展示锚点非免费午餐）",
+      "category": "rust",
+      "psnr_a5": 29.87195695043531,
+      "psnr_b1": 28.21779619423861,
+      "rank_a5": 22,
+      "rank_b1": 1,
+      "cos_own_a5": 0.9723817706108092,
+      "cos_own_b1": 0.9873847365379332,
+      "retrieved_a5": "vari-grip/good/Fotos 16-12-2020_DJI_0404_vari_grip_450",
+      "retrieved_b1": "vari-grip/rust/Fotos 23-10-2020_DJI_0043_vari_grip_759"
+    },
+    {
+      "source_id": "vari-grip/rust/Fotos 23-10-2020_DJI_0047_vari_grip_764_5",
+      "degradation": "noise",
+      "role": "unchanged",
+      "reason": "两者均正确 Top-1 且 PSNR 几乎不变（稳定样本代表）",
+      "category": "rust",
+      "psnr_a5": 24.14952210569736,
+      "psnr_b1": 24.15041050717397,
+      "rank_a5": 1,
+      "rank_b1": 1,
+      "cos_own_a5": 0.999271810054779,
+      "cos_own_b1": 0.9989977478981018,
+      "retrieved_a5": "vari-grip/rust/Fotos 23-10-2020_DJI_0047_vari_grip_764_5",
+      "retrieved_b1": "vari-grip/rust/Fotos 23-10-2020_DJI_0047_vari_grip_764_5"
+    }
+  ],
+  "fig5": {
+    "source_id": "vari-grip/rust/Fotos 23-10-2020_DJI_0032_vari_grip_750",
+    "degradation": "haze",
+    "role": "local_detail_visual",
+    "reason": "rust 类中位数来源的 haze 视图；局部窗口取最大退化误差中心（见 crop）",
+    "crop": [
+      34,
+      226,
+      34,
+      226
+    ],
+    "a5_macro_psnr": 28.072843212782136
+  },
+  "seed": 20260907,
+  "rules": "见本文件头注释"
+}

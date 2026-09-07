@@ -1,0 +1,36 @@
+% Table 2 source identity retention (auto-generated)
+\begin{table*}[t]
+\centering
+\caption{Source-identity retention on the test set (full clean gallery of 256 sources; same-subcategory candidate set in parentheses). Degraded-input row is method independent and included as reference. EER/AUC from the official frozen-verifier aggregate. Bold=best among restored rows, underline=second.}
+\begin{tabular}{lcccccc}
+\toprule
+Method
+Cohort
+Top-1
+Top-5
+SameCat Top-1
+EER$\downarrow$
+AUC$\uparrow$
+\\
+\midrule
+Degraded input & all & 0.3030 & 0.5106 & 0.3622 & 0.1687 & 0.9077 \\
+\midrule
+A5 & ablation_core & 0.6981 & 0.8605 & 0.7344 & 0.0799 & 0.9749 \\
+dehazeformer & c005 & 0.6708 & 0.8354 & 0.7193 & 0.0942 & 0.9692 \\
+restormer & c005 & 0.6562 & 0.8382 & 0.7098 & 0.0902 & 0.9702 \\
+promptir & c005 & \underline{0.6334} & \textbf{0.8276} & \underline{0.6858} & \underline{0.0944} & \underline{0.9674} \\
+ours_dim48_anchor & c005 & 0.6786 & 0.8644 & 0.7238 & 0.0827 & 0.9735 \\
+ours_dim64_anchor & c005 & 0.6702 & 0.8588 & 0.7132 & 0.0849 & 0.9724 \\
+airnet & c005 & 0.4442 & 0.6708 & 0.5017 & 0.1357 & 0.9395 \\
+clearair & c005 & 0.2584 & 0.4860 & 0.3131 & 0.1896 & 0.8917 \\
+dfpir & c005 & 0.5954 & 0.7896 & 0.6445 & 0.0998 & 0.9625 \\
+ffanet & c005 & 0.5301 & 0.7718 & 0.5993 & 0.1082 & 0.9557 \\
+grl & c005 & 0.3092 & 0.5134 & 0.3605 & 0.1678 & 0.9091 \\
+prenet & c005 & 0.3711 & 0.5938 & 0.4369 & 0.1660 & 0.9132 \\
+r2r & c005 & 0.5519 & 0.7589 & 0.6071 & 0.1117 & 0.9554 \\
+swinir & c005 & 0.3912 & 0.6138 & 0.4453 & 0.1591 & 0.9194 \\
+transweather & c005 & 0.3181 & 0.5809 & 0.3956 & 0.1522 & 0.9254 \\
+uformer & c005 & 0.4883 & 0.6775 & 0.5469 & 0.1383 & 0.9366 \\
+\bottomrule
+\end{tabular}
+\end{table*}

@@ -1,0 +1,16 @@
+% Supplementary ablation (auto-generated)
+\begin{table}[t]
+\centering
+\caption{Supplementary configs with real training settings (names unchanged from config files). A1/A3 contain the sibling output-consistency loss; C1/C2 use adaptive frozen anchors (tau=0.1). All: sibling grouping, 20k steps, seed 13, dim-48.}
+\begin{tabular}{lcccccc}
+\toprule
+Config & Enabled losses & PSNR & SSIM & LPIPS & Top-1 & EER\\
+\midrule
+A1 & rec+grad+$L_{\mathrm{sib}}$ & 27.95 & 0.9395 & 0.1578 & 0.6456 & 0.0890 \\
+A2 & rec+grad+$L_{\mathrm{deg}}$ & 28.55 & \underline{0.9435} & \underline{0.1500} & \underline{0.6713} & 0.0839 \\
+A3 & rec+grad+$L_{\mathrm{deg}}$+$L_{\mathrm{anc}}$+$L_{\mathrm{sib}}$ & \underline{28.55} & 0.9430 & \textbf{0.1477} & \textbf{0.6808} & \textbf{0.0820} \\
+C1 & rec+grad+$L_{\mathrm{anc}}^{\mathrm{adapt}}$ & 28.07 & 0.9412 & 0.1555 & 0.6328 & 0.0890 \\
+C2 & rec+grad+$L_{\mathrm{deg}}$+$L_{\mathrm{anc}}^{\mathrm{adapt}}$ & \textbf{28.60} & \textbf{0.9444} & 0.1502 & 0.6702 & \underline{0.0826} \\
+\bottomrule
+\end{tabular}
+\end{table}

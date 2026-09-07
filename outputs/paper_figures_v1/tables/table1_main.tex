@@ -1,0 +1,16 @@
+% Table 1 (main) — 自动生成，禁止手改数值
+\begin{table*}[t]
+\centering
+\caption{Seven-degradation restoration quality (test, 256 sources). Per-degradation mean over 256 views. Macro: equal-weight mean over the seven degradation means. Protocol: v2 masked PSNR/SSIM, LPIPS AlexNet 256$\times$256. Bold=best, underline=second. Train budget differs across cohorts (see asset manifest).}
+\begin{tabular}{lccccccccccccccccc}
+\toprule
+Method & \multicolumn{2}{c}{Blur} & \multicolumn{2}{c}{Haze} & \multicolumn{2}{c}{Inpainting} & \multicolumn{2}{c}{Low-light} & \multicolumn{2}{c}{Noise} & \multicolumn{2}{c}{Rain} & \multicolumn{2}{c}{Snow} & \multicolumn{3}{c}{Macro} \\
+ & PSNR & SSIM & PSNR & SSIM & PSNR & SSIM & PSNR & SSIM & PSNR & SSIM & PSNR & SSIM & PSNR & SSIM & PSNR & SSIM & LPIPS \\
+\midrule
+A5 & \textbf{28.77} & \textbf{24.43} & 31.06 & \textbf{29.66} & 27.81 & \textbf{33.83} & \textbf{25.97} & \underline{0.9542} & \textbf{0.9071} & 0.9738 & \textbf{0.9737} & 0.9440 & \textbf{0.9810} & \textbf{0.8866} & \textbf{28.7905} & \textbf{0.9458} & \underline{0.1433} \\
+dehazeformer & \underline{28.76} & 23.38 & \textbf{32.32} & \underline{28.44} & \textbf{28.03} & 32.38 & \underline{25.28} & \textbf{0.9545} & 0.8938 & \textbf{0.9786} & \underline{0.9706} & \textbf{0.9462} & 0.9748 & \underline{0.8848} & \underline{28.3717} & \underline{0.9433} & \textbf{0.1376} \\
+restormer & 28.54 & 23.94 & 31.55 & 26.33 & \underline{27.98} & \underline{33.17} & 25.22 & 0.9527 & \underline{0.9041} & 0.9758 & 0.9654 & \underline{0.9454} & \underline{0.9784} & 0.8812 & 28.1046 & 0.9433 & 0.1496 \\
+promptir & 28.39 & \underline{23.95} & \underline{31.56} & 23.59 & 27.79 & 32.84 & 24.56 & 0.9519 & 0.9029 & \underline{0.9759} & 0.9476 & 0.9439 & 0.9755 & 0.8687 & 27.5255 & 0.9381 & 0.1579 \\
+\bottomrule
+\end{tabular}
+\end{table*}

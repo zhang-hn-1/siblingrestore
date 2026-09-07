@@ -1,0 +1,24 @@
+% Table 2 source identity retention (auto-generated)
+\begin{table*}[t]
+\centering
+\caption{Source-identity retention on the test set (full clean gallery of 256 sources; same-subcategory candidate set in parentheses). Degraded-input row is method independent and included as reference. EER/AUC from the official frozen-verifier aggregate. Bold=best among restored rows, underline=second.}
+\begin{tabular}{lcccccc}
+\toprule
+Method
+Cohort
+Top-1
+Top-5
+SameCat Top-1
+EER$\downarrow$
+AUC$\uparrow$
+\\
+\midrule
+Degraded input & all & 0.3030 & 0.5106 & 0.3622 & 0.1687 & 0.9077 \\
+\midrule
+A5 & ablation_core & \underline{0.6981} & 0.8605 & \underline{0.7344} & 0.0799 & 0.9749 \\
+dehazeformer & c005 & 0.6708 & \underline{0.8354} & 0.7193 & \underline{0.0942} & \underline{0.9692} \\
+restormer & c005 & 0.6562 & 0.8382 & 0.7098 & 0.0902 & 0.9702 \\
+promptir & c005 & 0.6334 & 0.8276 & 0.6858 & 0.0944 & 0.9674 \\
+\bottomrule
+\end{tabular}
+\end{table*}
