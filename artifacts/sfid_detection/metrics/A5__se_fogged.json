@@ -1,0 +1,11 @@
+{
+  "method": "A5",
+  "variant": "se_fogged",
+  "detector": "/home/zhanghangning/siblingrestore-pilot-server/data/external/finet_runs/runs/se_m_ep99_fogged/weights/best.pt",
+  "images": 1404,
+  "targets": 2631,
+  "precision": 0.879,
+  "recall": 0.989,
+  "mAP50": 0.991,
+  "mAP50_95": 0.811
+}

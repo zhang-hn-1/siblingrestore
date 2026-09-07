@@ -1,0 +1,11 @@
+{
+  "method": "DehazeFormer",
+  "variant": "without_fog",
+  "detector": "/home/zhanghangning/siblingrestore-pilot-server/data/external/finet_runs/runs/m_ep99_without_fog/weights/best.pt",
+  "images": 1404,
+  "targets": 2631,
+  "precision": 0.86,
+  "recall": 0.906,
+  "mAP50": 0.938,
+  "mAP50_95": 0.7
+}

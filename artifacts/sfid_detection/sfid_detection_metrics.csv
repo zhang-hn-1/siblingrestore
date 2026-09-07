@@ -1,0 +1,14 @@
+method,detector_variant,detector,images,targets,precision,recall,mAP50,mAP50_95,mAP50_insulator,mAP50_95_insulator,mAP50_broken_piece,mAP50_95_broken_piece
+A5,fogged,YOLOv5m (fog-trained),1404,2631,0.874,0.988,0.991,0.806,0.987,0.827,0.995,0.786
+A5,se_fogged,SE-YOLOv5m (fog-trained),1404,2631,0.879,0.989,0.991,0.811,0.987,0.832,0.995,0.789
+A5,without_fog,YOLOv5m (clear-trained),1404,2631,0.865,0.884,0.925,0.685,0.927,0.7,0.923,0.669
+Clear,without_fog,YOLOv5m (clear-trained),1339,2447,0.868,0.983,0.985,0.777,,,,
+Degraded,fogged,YOLOv5m (fog-trained),1404,2631,0.877,0.994,0.993,0.838,0.991,0.86,0.995,0.817
+Degraded,se_fogged,SE-YOLOv5m (fog-trained),1404,2631,0.88,0.995,0.993,0.834,0.991,0.861,0.995,0.808
+Degraded,without_fog,YOLOv5m (clear-trained),1404,2631,0.878,0.924,0.947,0.708,0.949,0.724,0.946,0.692
+DehazeFormer,fogged,YOLOv5m (fog-trained),1404,2631,0.882,0.987,0.989,0.808,0.984,0.828,0.994,0.788
+DehazeFormer,se_fogged,SE-YOLOv5m (fog-trained),1404,2631,0.883,0.988,0.991,0.808,0.986,0.832,0.995,0.785
+DehazeFormer,without_fog,YOLOv5m (clear-trained),1404,2631,0.86,0.906,0.938,0.7,0.939,0.713,0.937,0.687
+Restormer,fogged,YOLOv5m (fog-trained),1404,2631,0.881,0.985,0.988,0.809,0.987,0.833,0.988,0.786
+Restormer,se_fogged,SE-YOLOv5m (fog-trained),1404,2631,0.887,0.986,0.99,0.811,0.988,0.836,0.993,0.786
+Restormer,without_fog,YOLOv5m (clear-trained),1404,2631,0.864,0.901,0.93,0.69,0.937,0.711,0.922,0.668

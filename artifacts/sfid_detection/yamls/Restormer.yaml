@@ -1,0 +1,3 @@
+val: /home/zhanghangning/siblingrestore-pilot-server/data/external/sfid_detection/Restormer/images
+nc: 2
+names: ['insulator', 'broken_piece']

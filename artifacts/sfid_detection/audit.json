@@ -1,0 +1,18 @@
+{
+  "dataset": "SFID foggy test subset",
+  "fog_images_in_test": 1404,
+  "exported_images": {
+    "Degraded": 1404,
+    "A5": 1404,
+    "DehazeFormer": 1404,
+    "Restormer": 1404
+  },
+  "all_match": true,
+  "labels_per_method": {
+    "Degraded": 1404,
+    "A5": 1404,
+    "DehazeFormer": 1404,
+    "Restormer": 1404
+  },
+  "note": "restoration checkpoints frozen; detector weights frozen; only evaluation"
+}
